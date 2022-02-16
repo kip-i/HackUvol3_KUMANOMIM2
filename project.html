@@ -9,6 +9,82 @@
 
 <body>
     <div id="dragTableArea"></div>
+
+    <button id="modalOpen"> + </button>
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h1>ユーザー追加</h1>
+                <span class="modalClose">×</span>
+                </div>
+                <div class="modalBody">
+                    <button id="login" onclick="window.location='login.html'">ログインしてMyページを利用</button>
+                    <button id="unknown" onclick="modalNameOpen()">ログインせずに利用</button>
+                </div>
+                <div class="modalName">
+                    <input id='unknown-name' type='text' placeholder='名前'>
+                    <button id='name-decision' onclick="modalNameClose()">決定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- コピー対象要素とコピーボタン -->
+        <input id="copyUrl" type="url" readonly>
+        <button onclick="copyToClipboard()">URLをコピー</button>
+
+
+        <script>
+            //modalを表示・非表示する
+            var buttonOpen = document.getElementById('modalOpen');
+            var modal = document.getElementById('loginModal');
+            var buttonClose = document.getElementsByClassName('modalClose')[0];
+            var bodyModal=document.getElementsByClassName('modalBody')[0];
+            var nameModal=document.getElementsByClassName('modalName')[0];
+
+            buttonOpen.addEventListener('click', modalOpen);
+            function  modalOpen(){
+                modal.style.display='block';
+            };
+            buttonClose.addEventListener('click', modalClose);
+            function modalClose(){
+                modal.style.display='none';
+            }
+            function modalNameOpen(){
+                bodyModal.style.display='none';
+                nameModal.style.display='block';
+            }
+            function modalNameClose(){
+                modal.style.display='none';
+                let userName=document.getElementById('unknown-name').value;
+            }
+            //URLをコピーする
+            copyUrl.value=location.href;
+            function copyToClipboard() {
+                // コピー対象をJavaScript上で変数として定義する
+                var copyTarget = document.getElementById("copyUrl");
+                // コピー対象のテキストを選択する
+                copyTarget.select();
+                // 選択しているテキストをクリップボードにコピーする
+                document.execCommand("Copy");
+                // コピーをお知らせする
+                alert("コピーできました！ : " + copyTarget.value);
+            }
+        </script>
+
+        <style>
+            .modal, .modalName{
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.5);
+            }
+        </style>
+
 </body>
 <script>
 
