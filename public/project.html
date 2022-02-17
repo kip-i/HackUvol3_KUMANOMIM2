@@ -13,40 +13,93 @@
     <button onclick="copyToClipboard()">URLをコピー</button>
 
     <div id="dragTableArea"></div>
+    <div>
+        <button id="login" onclick="window.location='login.html'">ログイン</button>
+        ログインしないで利用:
+        <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+    </div>
 </body>
 <script>
     //----------------------------------------------------------------
-
+    //ログインしてない人の名前------------
+    var unLoginUserName;
     //--------------------------------
-
+    //メモ$("#copyUrl")[0]
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
 
 
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
-    var userName
-    for (var i = 0; i < getProjectMembers(); i++) {
+    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
+    $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
+    var finish = getProjectPeriodFinish();
+    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
+    }
+    var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
+    $("<th></th>").appendTo(tableSecondRow);
+    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        for (var j = 0; j < 24; j++) {
+            $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+        }
+
+    }
+    //それぞれのメンバーの行--------------
+    for (var i = 0; i < getProjectMembers().length; i++) {
+        var memberRow = getProjectMemberSchedule(i);
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<td>" + getUserName(i) + "</td>").appendTo(tableRow);
-        for (var j = 0; j < getProjectPeriod(); j++) {
-            $("<td></td>").appendTo(tableRow);
+        $("<td>" + getProjectMembers()[i] + "</td>").appendTo(tableRow);
+        var count = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if (memberRow[count] == 0) {
+                    console.log(memberRow[(j * 144) + k]);
+                    $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
+                } else {
+                    $("<td class=\"highlighted\"></td>").appendTo(tableRow);
+                }
+                count++;
+                //$("<td class=\"notHighlight\"></td>").appendTo(tableRow);
+            }
+
         }
     }
+    //新規欄-----------------------------------------------------------
+    var tableRow = $("<tr></tr>").appendTo(tableTag);
+    var plusCellbox = $("<td></td>").appendTo(tableRow);
+    $("<button id=\"modalOpen\"> + </button>").appendTo(plusCellbox);
+    for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+        for (var k = 0; k < 144; k++) {
+            $("<td class=\"drag\"></td>").appendTo(tableRow);
+        }
+
+    }
     $("#dragTableArea").append(tableTag);
-    //仮のfunction----------------------------------------------------
+
     function getProjectPeriod() {
-        return 20;
+
+        for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        }
+        return i;
     }
+    //仮のfunction----------------------------------------------------
     function getProjectMembers() {
-        return 3;
-    }
-    function getUserName(i) {
         var people = ["aa", "bb", "cc"];
-        return people[i];
+        return people;
+    }
+
+    function getProjectPeriodStart() {
+        return new Date(2022, 2 - 1, 17);
+    }
+    function getProjectPeriodFinish() {
+        return new Date(2022, 2 - 1, 18);
+    }
+    function getProjectMemberSchedule(i) {
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     }
     //テーブルのドラックした時の処理---------------------------------------
     var isMouseDown = false;
-    $("#dragTableArea td")
+    $(".drag")
         .mousedown(function () {
             isMouseDown = true;
             $(this).toggleClass("highlighted");
@@ -62,6 +115,7 @@
         .mouseup(function () {
             isMouseDown = false;
         });
+
     //----------------------------------------------------------------
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
@@ -75,19 +129,71 @@
         // コピーをお知らせする
         alert("コピーできました! : " + copyTarget.value);
     }
+    //ログインしていない人が名前を入力したとき-------------------------------
+    $("#unLoginUserName")[0].addEventListener("keypress", getUnLoginUserName);
+    function getUnLoginUserName(e) {
+        if (e.keyCode === 13) {
+            unLoginUserName = $("#unLoginUserName").val();
+            $("#modalOpen").hide();
+            $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
+            console.log(unLoginUserName);
+            //仮functionのため
+            var line = "[";
+            for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (var k = 0; k < 144; k++) {
+                    if (k % 2 === 0) {
+                        line = line + "0,";
+                    } else {
+                        line = line + "1,";
+                    }
+                }
+
+            }
+            line.slice(0, -1);
+            line = line + "]";
+            console.log(line);
+
+        }
+    }
+    //表示非表示時の変更-----------------
+
+
 </script>
 <style>
-    table td {
-        width: 100px;
-        height: 100px;
+    table td.drag {
+        min-width: 20px;
+        height: 10px;
         text-align: center;
         vertical-align: middle;
         background-color: #ccc;
         border: 1px solid #fff;
     }
 
+    th {
+        text-align: left;
+        border: 0.5px solid black;
+    }
+
+    table td.notHighlight {
+        min-width: 20px;
+        height: 10px;
+        text-align: center;
+        vertical-align: middle;
+        background-color: #ccc;
+        border: 1px solid #fff;
+    }
+
+
     table td.highlighted {
-        background-color: #999;
+        /*background-color: #999;*/
+        background-color: rgb(240, 173, 96);
+    }
+
+    table {
+        display: block;
+        overflow-x: scroll;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
     }
 </style>
 
