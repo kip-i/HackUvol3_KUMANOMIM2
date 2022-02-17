@@ -28,7 +28,7 @@ function setMySchedule( uid, mySchedule, date){
     
     var scheduleDate =  (date.getFullYear * 10000) + (date.getMonth * 100) + (date.getDate);
     
-    db.collection("accont").document(uid).collection("mySchedule").add({
+    db.collection("account").document(uid).collection("mySchedule").add({
         date: scheduleDate,
         mySchedule: mySchedule
     })
@@ -39,10 +39,9 @@ function getMySchedule(date, uid){
 
     var mySchedule = [];
 
-    db.collection("accont").document(uid).collection("mySchedule").where("date","==",date).get()
+    db.collection("account").document(uid).collection("myScheduleId").where("date","==",date).get()
     .then(
         (querySnapshot) => {
-            mySchedule;
             querySnapshot.forEach((doc) => {
                 var data = doc.data();
                 mySchedule.push([doc.id,data.mySchedule,data.date]);
