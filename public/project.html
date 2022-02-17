@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+    <!-- コピー対象要素とコピーボタン -->
+    <input id="copyUrl" type="url" readonly>
+    <button onclick="copyToClipboard()">URLをコピー</button>
+
+    <div id="dragTableArea"></div>
+</body>
+<script>
+    //----------------------------------------------------------------
+
+    //--------------------------------
+
+    //テーブル作成------------------------------------------------------
+    //状況の取得------------------------
+
+
+    var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
+    var userName
+    for (var i = 0; i < getProjectMembers(); i++) {
+        var tableRow = $("<tr></tr>").appendTo(tableTag);
+        $("<td>" + getUserName(i) + "</td>").appendTo(tableRow);
+        for (var j = 0; j < getProjectPeriod(); j++) {
+            $("<td></td>").appendTo(tableRow);
+        }
+    }
+    $("#dragTableArea").append(tableTag);
+    //仮のfunction----------------------------------------------------
+    function getProjectPeriod() {
+        return 20;
+    }
+    function getProjectMembers() {
+        return 3;
+    }
+    function getUserName(i) {
+        var people = ["aa", "bb", "cc"];
+        return people[i];
+    }
+    //テーブルのドラックした時の処理---------------------------------------
+    var isMouseDown = false;
+    $("#dragTableArea td")
+        .mousedown(function () {
+            isMouseDown = true;
+            $(this).toggleClass("highlighted");
+            return false; // prevent text selection
+        })
+        .mouseover(function () {
+            if (isMouseDown) {
+                $(this).toggleClass("highlighted");
+            }
+        });
+
+    $(document)
+        .mouseup(function () {
+            isMouseDown = false;
+        });
+    //----------------------------------------------------------------
+    //URLをコピーする---------------------------------------------------
+    copyUrl.value = location.href;
+    function copyToClipboard() {
+        // コピー対象をJavaScript上で変数として定義する
+        var copyTarget = $("#copyUrl")[0];
+        // コピー対象のテキストを選択する
+        copyTarget.select();
+        // 選択しているテキストをクリップボードにコピーする
+        document.execCommand("Copy");
+        // コピーをお知らせする
+        alert("コピーできました! : " + copyTarget.value);
+    }
+</script>
+<style>
+    table td {
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        vertical-align: middle;
+        background-color: #ccc;
+        border: 1px solid #fff;
+    }
+
+    table td.highlighted {
+        background-color: #999;
+    }
+</style>
+
+</html>
