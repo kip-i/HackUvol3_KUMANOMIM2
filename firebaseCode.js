@@ -4,8 +4,8 @@ let db = firebase.firestore(); // データベースに関する機能の取得
 
 function getProjectMembers(){
     let ID;
-    //↑プロジェクトidの取得が分からない
-    ID = getParam()
+    
+    ID = getParam("project");
     db.collection("project").collection(ID).get().then((query)=>{
         var buff = [];
         query.forEach((doc)=>{
@@ -21,7 +21,8 @@ function getProjectMembers(){
 
 function getProjectperiodStart(){
     let ID;
-    //↑プロジェクトidの取得が分からない
+
+    ID = getParam("project");
     start = new date();
     
     var docRef=db.collction("project").doc(ID);
@@ -37,7 +38,8 @@ function getProjectperiodStart(){
 
 function getProjectPeriodFinish(){
     let ID;
-    //↑プロジェクトidの取得が分からない
+    
+    ID = getParam("project");
     end = new date();
 
     var docRef = db.collection("project").doc(ID);
@@ -50,19 +52,19 @@ function getProjectPeriodFinish(){
 }
 
 function getProjectMemberSchedule(menberIndex){
-    var projectSchedule = [];
+    var data = [];
 
-    db.collection("project").document(ID).collection(projectMenberPeriod).whhere("menberIndex","==",menberIndex)
+    db.collection("project").doc(ID).collection(projectMenberPeriod).where("menberIndex","==",menberIndex)
     .get()
     .then((querySnapshot) =>{
-        queruSnapshot.forEach((doc) => {
-            var data = doc.data();
-            projectSchedule.push([data.projectSchedule]);
+        querySnapshot.forEach((doc) => {
+            data = doc.data()["projectSchedule"];
+            //projectSchedule.push(data.projectSchedule);
         });
     }).catch((error) => {
         console.log("データの取得に失敗しました(${error})");
     })
-    return projectSchedule[0];
+    return data;
 }
 
 /*プロジェクトを作成する関数.小塚*/
