@@ -48,8 +48,8 @@ function setMySchedule( uid, mySchedule){
     .then(
         (querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                var data = doc.data();
-                scheduleId[i] = data.id;
+                //var data = doc.data();
+                scheduleId[i] = doc.id;
                 i++;
             });
         }).catch((error) => {
@@ -72,15 +72,19 @@ function setMySchedule( uid, mySchedule){
     }
 }
 
-/*my日程を取得する関数*/
+/*my日程を取得する関数.小塚*/
 function getMySchedule(uid){
 
     var today = new Date();     //今日の日付を取得
     var finalDay = new Date();
 
+    var stringDay;
+
     finalDay.setDate(finalDay.getDate + 59);    //登録可能な一番遠い日付を入れておく
 
-    var intToday = transDateToInt(today.get);      //今日の日付をintの形に変換
+    stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+
+    var intToday = transDateToInt(stringDay);      //今日の日付をintの形に変換
 
     var pastDataId = [];     //過去の日付のドキュメントIDを入れる配列
     var defaultPeriod = [];  //初期状態の日程
@@ -97,8 +101,8 @@ function getMySchedule(uid){
     .then(
         (querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                var data = doc.data();
-                pastDataId[i] = data.id;
+                //var data = doc.data();
+                pastDataId[i] = doc.id;
                 i++;
         });
     }).catch((error) => {
@@ -109,7 +113,7 @@ function getMySchedule(uid){
     for(i = 0;i < pastDataId.length;i++){
 
         //過去のデータのドキュメントを入力されていない日付のデータとして更新
-        db.collection("account").doc(uid).collection(myScheduleId).doc(pastDataId[i]).set({
+        db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({
             date : transDateToInt(finalDay),
             mySchedule : defaultPeriod
         })
