@@ -18,11 +18,14 @@
         ログインしないで利用:
         <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
     </div>
+    <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
 </body>
 <script>
     //----------------------------------------------------------------
+
     //ログインしてない人の名前------------
     var unLoginUserName;
+    var uid = null;
     //--------------------------------
     //メモ$("#copyUrl")[0]
     //テーブル作成------------------------------------------------------
@@ -53,13 +56,11 @@
         for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
                 if (memberRow[count] == 0) {
-                    console.log(memberRow[(j * 144) + k]);
                     $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
                 } else {
                     $("<td class=\"highlighted\"></td>").appendTo(tableRow);
                 }
                 count++;
-                //$("<td class=\"notHighlight\"></td>").appendTo(tableRow);
             }
 
         }
@@ -67,13 +68,40 @@
     //新規欄-----------------------------------------------------------
     var tableRow = $("<tr></tr>").appendTo(tableTag);
     var plusCellbox = $("<td></td>").appendTo(tableRow);
-    $("<button id=\"modalOpen\"> + </button>").appendTo(plusCellbox);
-    for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-        for (var k = 0; k < 144; k++) {
-            $("<td class=\"drag\"></td>").appendTo(tableRow);
+    //認証状態の確認
+    /*firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            userid = firebase.auth().currentUser.uid;
         }
-
+    });*/
+    //-仮用--------------------------------------------------------------------------------------------------------------------------------------
+    //uid = "a";
+    if (uid != null) {
+        //ログインした人のための処理----------
+        $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
+        var userSchedule = getUserSchedule(uid);
+        var i = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if (memberRow[i] == 0) {
+                    $("<td class=\"notHighlight drag\"></td>").appendTo(tableRow);
+                } else {
+                    $("<td class=\"highlighted drag\"></td>").appendTo(tableRow);
+                }
+                i++;
+            }
+        }
     }
+    else {
+        //ログインしてない人のための処理-------
+        $("<button id=\"modalOpen\"> + </button>").appendTo(plusCellbox);
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                $("<td class=\"drag\"></td>").appendTo(tableRow);
+            }
+        }
+    }
+
     $("#dragTableArea").append(tableTag);
 
     function getProjectPeriod() {
@@ -83,6 +111,12 @@
         return i;
     }
     //仮のfunction----------------------------------------------------
+    function getUserSchedule(uid) {
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    }
+    function getUserName(uid) {
+        return "ログイン済み";
+    }
     function getProjectMembers() {
         var people = ["aa", "bb", "cc"];
         return people;
@@ -136,26 +170,13 @@
             unLoginUserName = $("#unLoginUserName").val();
             $("#modalOpen").hide();
             $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
-            console.log(unLoginUserName);
-            //仮functionのため
-            var line = "[";
-            for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-                for (var k = 0; k < 144; k++) {
-                    if (k % 2 === 0) {
-                        line = line + "0,";
-                    } else {
-                        line = line + "1,";
-                    }
-                }
-
-            }
-            line.slice(0, -1);
-            line = line + "]";
-            console.log(line);
 
         }
     }
     //表示非表示時の変更-----------------
+
+
+    //登録ボタンが押されたときの処理---------------------------------------
 
 
 </script>
