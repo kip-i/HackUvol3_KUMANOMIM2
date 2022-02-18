@@ -63,7 +63,7 @@ logout.addEventListener('click', function() {
 firebase.auth().onAuthStateChanged(function(user) {
   if(user) {
     userid = firebase.auth().currentUser.uid;
-    loginDisplay();
+    //loginDisplay();
   }
   else {
   //  logoutDisplay();
