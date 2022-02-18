@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8" /><!-- update the version number as needed -->
+    <meta charset="utf-8" />
    
   <!--  -->
   <script src="/__/firebase/6.2.0/firebase-app.js"></script>
@@ -33,7 +33,7 @@
     <h1 class="header-title">ホームページ</h1>
     
     <div class="container">
-      <div id="input-area">
+      <div id="inputarea">
         <button id="mypage" onclick="mypageClick()">Myページ へ</button><br><br>
         <input id="project-name" type="text" placeholder="プロジェクト名">
         <p>プロジェクト開始: <input id="project-start" type="date"></p>
@@ -43,11 +43,6 @@
       </div>
     </div>
     
-    <!-- テキスト表示用 -->
-    <p id="info"></p>
-    
-    <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-    <script src="config.js"></script>
     <script>
       let db=firebase.firestore();
       let userid="";
@@ -76,13 +71,50 @@
         }
 
         function forProject(){
-          var projectName = document.getElementById("project-name");
-          var projectStartPeriod=document.getElementById("project-start");
-          var projectFinishPeriod=document.getElementById("project-finish");
+          var projectName = document.getElementById("project-name").value;
+          var projectStartPeriod=document.getElementById("project-start").value;
+          var projectFinishPeriod=document.getElementById("project-finish").value;
 
-          createProject(projectName,projectStartPeriod,projectFinishPeriod);
+          var projectId=getProjectId();
+          let url="kumanomim2.web.app/project.html"+"?id="+projectId;
+          console.log(projectName);
+          console.log(url);
+          createProject(projectName,projectStartPeriod,projectFinishPeriod,projectId,url);
+          console.log("成功");
+          //window.location=url;
         }
+
+        function getProjectId(){
+          let collection=db.collection("project");
+          let newProjectId=collection.doc().id;
+          return newProjectId;
+        }
+
+        /*プロジェクトを作成する関数.小塚*/
+        /*
+        *projectName            :String
+        *projectStartPeriod     :Date
+        *projectEndPeriod       :Date
+        */
+        function createProject( projectName, projectStartPeriod, projectEndPeriod,projectId,url){
+
+          var start=projectStartPeriod.split("-",3);
+          var finish=projectEndPeriod.split("-",3);
+          /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
+          var startTime = parseInt(start[0] * 10000) + parseInt(start[1] * 100) + parseInt(start[2]);
+          var endTime = parseInt(finish[0] * 10000) + parseInt(finish[1] * 100) + parseInt(finish[2]);
+          console.log(start[0],start[1],start[2]);
+          //データベースにドキュメントを更新.決まっていいない値はnullか0
+          db.collection("project").doc(projectId).set({
+              URL: url,
+              menberId:  [null],
+              projectName: projectName,
+              projectPeiriod: [startTime,endTime],
+              projectDecisionName: 0,
+              projectmenberName: [null]
+          })
+        }
+
     </script>
-    
   </body>
 </html>
