@@ -170,10 +170,10 @@ function getProjectperiodStart(){
     ID = getParam("project");
     //start = new Date();
     var docRef=db.collction("project").doc(ID);
-    docRef.get().then((doc)=>{
+    //docRef.get().then((doc)=>{
         var buff = doc.data()["projectPeriod[0]"];
         //buff.push([doc.projectPeriod[0]]);
-    })
+    //})
 
     let start=new Date(buff[0]/10000,(buff[0]%10000)/100,(buff[0]%100));
     return start;
@@ -183,14 +183,14 @@ function getProjectPeriodFinish(){
     let ID;
     
     ID = getParam("project");
-    end = new date();
+    //end = new date();
 
     var docRef = db.collection("project").doc(ID);
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[1]]);
-    })
-    end(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
+    //docRef.get().then((doc)=>{
+        var buff = doc.data()["projectPeriod[1]"];
+    //    buff.push([doc.projectPeriod[1]]);
+    //})
+    let end=new Date(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
     return end;
 }
 
