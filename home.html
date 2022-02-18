@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8" /><!-- update the version number as needed -->
+    <meta charset="utf-8" />
    
   <!--  -->
   <script src="/__/firebase/6.2.0/firebase-app.js"></script>
@@ -33,7 +33,7 @@
     <h1 class="header-title">ホームページ</h1>
     
     <div class="container">
-      <div id="input-area">
+      <div id="inputarea">
         <button id="mypage" onclick="mypageClick()">Myページ へ</button><br><br>
         <input id="project-name" type="text" placeholder="プロジェクト名">
         <p>プロジェクト開始: <input id="project-start" type="date"></p>
@@ -43,11 +43,6 @@
       </div>
     </div>
     
-    <!-- テキスト表示用 -->
-    <p id="info"></p>
-    
-    <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-    <script src="config.js"></script>
     <script>
       let db=firebase.firestore();
       let userid="";
@@ -80,7 +75,16 @@
           var projectStartPeriod=document.getElementById("project-start");
           var projectFinishPeriod=document.getElementById("project-finish");
 
-          createProject(projectName,projectStartPeriod,projectFinishPeriod);
+          var projectId=getProjectId();
+          createProject(projectName,projectStartPeriod,projectFinishPeriod,projectId);
+          let url="kumanomim2.web.app/project.html"+"?id="+projectId;
+          window.location=url;
+        }
+
+        function getProjectId(){
+          let collection=db.collection("project");
+          let newProjectId=collection.doc().id;
+          return newProjectId;
         }
     </script>
     
