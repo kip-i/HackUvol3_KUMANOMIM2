@@ -1,7 +1,14 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8" /><!-- update the version number as needed -->
+   
+  <!--  -->
+  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+  <script src="/__/firebase/init.js"></script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
     <title>ホームページ</title>
     <link rel="stylesheet" href="login.css" />
@@ -27,11 +34,11 @@
     
     <div class="container">
       <div id="input-area">
-        <button id="mypage">Myページ へ</button><br><br>
-        <input id="projectName" type="text" placeholder="プロジェクト名">
-        <p>プロジェクト開始：<input id="projectStart" type="date"></p>
-        <p>プロジェクト終了：<input id="projectFinish" type="date"></p>
-        <button id="projectMake">プロジェクトを作成</button>
+        <button id="mypage" onclick="mypageClick()">Myページ へ</button><br><br>
+        <input id="project-name" type="text" placeholder="プロジェクト名">
+        <p>プロジェクト開始: <input id="project-start" type="date"></p>
+        <p>プロジェクト終了: <input id="project-finish" type="date"></p>
+        <button id="project-make" onclick="forProject()"> プロジェクトを作成 </button>
 
       </div>
     </div>
@@ -41,6 +48,41 @@
     
     <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
     <script src="config.js"></script>
-    <script src="login.js"></script>
+    <script>
+      let db=firebase.firestore();
+      let userid="";
+      //認証状態の確認
+      function mypageClick(){   
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user) {
+            userid = firebase.auth().currentUser.uid;
+            loginDisplay();
+          }
+          else {
+            window.location="login.html";
+          }
+          });
+        }
+        function loginDisplay() {
+        //  logout.classList.remove('hide');
+          inputarea.classList.add('hide');
+          let userName=getUserName();
+          info.textContent = "ログイン中です!";
+          window.location="mypage.html";
+        }
+        function getUserName(){
+          var userName=db.collection("account").doc(userid).get().data()["name"];
+          return userName;
+        }
+
+        function forProject(){
+          var projectName = document.getElementById("project-name");
+          var projectStartPeriod=document.getElementById("project-start");
+          var projectFinishPeriod=document.getElementById("project-finish");
+
+          createProject(projectName,projectStartPeriod,projectFinishPeriod);
+        }
+    </script>
+    
   </body>
 </html>
