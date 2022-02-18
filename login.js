@@ -12,13 +12,20 @@ function createUser() {
   firebase.auth().createUserWithEmailAndPassword(mailAddress, password)
   .then(function(){  
     userid = firebase.auth().currentUser.uid;
-    db.collection("account").document(userid).set({
+    console.log(userid);
+    db.collection("account").doc(userid).set({
       name:userName,
       mailadd:mailAddress,
       pass:password
     })
     .then(function(){
       console.log("登録成功!");
+      for(let i=0;i<60;i++){    
+        db.collection("account").doc(userid).collection("myScheduleId").doc().set({
+          date:-1,
+          mySchedule:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        })
+      }
     })
     .catch(function (error) { // 失敗した場合に実行される箇所
       console.error("Error adding document: ", error);
@@ -56,7 +63,7 @@ logout.addEventListener('click', function() {
 firebase.auth().onAuthStateChanged(function(user) {
   if(user) {
     userid = firebase.auth().currentUser.uid;
-    loginDisplay();
+    //loginDisplay();
   }
   else {
   //  logoutDisplay();

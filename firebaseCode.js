@@ -1,6 +1,6 @@
 
 /*firebaseの関数を書いたファイル*/ 
-let db = firebase.firestore(); // データベースに関する機能の取得
+//let db = firebase.firestore(); // データベースに関する機能の取得
 
 function getProjectMembers(){
     let ID;
@@ -73,7 +73,7 @@ function getProjectMemberSchedule(menberIndex){
 *projectStartPeriod     :Date
 *projectEndPeriod       :Date
 */
-function createProject( projectName, projectStartPeriod, projectEndPeriod,projectId){
+function createProject( projectName, projectStartPeriod, projectEndPeriod,projectId,url){
 
     /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
     var startTime = (projectStartPeriod.getFullYear * 10000) + (projectStartPeriod.getMonth * 100) + (projectStartPeriod.getDate);
@@ -82,11 +82,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        menberId:  [""],
+        menberId:  ["1"],
         projectName: projectName,
         projectPeiriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmenberName: [""]
+        projectmenberName: ["1"]
     })
 }
 

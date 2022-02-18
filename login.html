@@ -33,20 +33,18 @@
     <h1 class="header-title">ログインページ</h1>
     
     <div class="container">
-      <div id="input-area">
+      <div id="inputarea">
         <input id="name" type="name" placeholder="ユーザ名を入力" required/>
         <input id="email" type="email" placeholder="メールアドレスを入力" required/>
         <input id="password" type="password" placeholder="パスワードを入力" required/>
-        <button id="login">ログイン</button>
-        <button id="newuser">新規登録</button>
+        <button id="login" onclick="login()">ログイン</button>
+        <button id="newuser" onclick="createUser()">新規登録</button>
       </div>
     </div>
     
     <!-- テキスト表示用 -->
     <p id="info"></p>
     
-    <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-    <script src="config.js"></script>
     <script src="login.js"></script>
   </body>
 </html>
