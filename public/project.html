@@ -84,9 +84,9 @@
         for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
                 if (memberRow[i] == 0) {
-                    $("<td class=\"notHighlight drag\"></td>").appendTo(tableRow);
+                    $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
                 } else {
-                    $("<td class=\"highlighted drag\"></td>").appendTo(tableRow);
+                    $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
                 }
                 i++;
             }
@@ -94,10 +94,12 @@
     }
     else {
         //ログインしてない人のための処理-------
+        var i = 0;
         $("<button id=\"modalOpen\"> + </button>").appendTo(plusCellbox);
         for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
-                $("<td class=\"drag\"></td>").appendTo(tableRow);
+                $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                i++;
             }
         }
     }
@@ -105,7 +107,6 @@
     $("#dragTableArea").append(tableTag);
 
     function getProjectPeriod() {
-
         for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
         }
         return i;
@@ -177,7 +178,27 @@
 
 
     //登録ボタンが押されたときの処理---------------------------------------
-
+    function scheduleSave() {
+        var scheduleArray = [];
+        var i = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if ($("#cell" + i).hasClass("highlighted")) {
+                    scheduleArray.push(1);
+                } else {
+                    scheduleArray.push(0);
+                }
+                i++;
+            }
+        }
+        if (uid != null) {
+            //ログインした人のための処理----------
+            setLoginMember(getProjectMembers().length + 1, scheduleArray);
+        } else {
+            //ログインしてない人のための処理-------
+            setJoinMember(getUserName(uid), scheduleArray);
+        }
+    }
 
 </script>
 <style>
