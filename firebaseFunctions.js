@@ -1,7 +1,7 @@
 //author:takuma
 //kumanomiM2
 
-
+/*url取得部分*/
 function getParam(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -27,13 +27,46 @@ function getUserSchedule(uid){
                                                                                           .where("date", "<=", period[1]).get();
     return projectPeriodMySchedule;
 }
-/*String,int*/
+
 function setJoinMenber(memberName,newSchedule){
+    var projectId = getParam("project");
+
+    db.collection(projectId).set({
+        projectMemberName:memberName
+    })
+    .then(function() {
+        console.log("memberName successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(memberName): ", error);
+    });
+
+    db.collection(projectId).collection(projectMemberPeriod).set({
+        projectSchedule:newSchedule
+    })
+    .then(function() {
+        console.log("newSchedule successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(newScedule): ", error);
+    });
 
     return null;
 }
-/*int,int[]*/
-function setLoginMember(memberIndex,schedule){
+/*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
+function setLoginMember(memIndex,schedule){
+    var projectId = getParam("project");
+
+    db.collection(projectId).collection(projectMemberPeriod).set({
+        memberIndex:memIndex,
+        projectSchedule:schedule
+    })
+    .then(function() {
+        console.log("Document successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document: ", error);
+    });
 
     return null;
 }
