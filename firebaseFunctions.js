@@ -8,7 +8,7 @@
 //削除	removeか、nullを書き込む
 
 //データベースに関する
-let db = firebase.firestore();
+//let db = firebase.firestore();
 
 /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
 function getUserSchedule(uid){

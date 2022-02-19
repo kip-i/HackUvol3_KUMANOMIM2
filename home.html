@@ -79,12 +79,12 @@
           var projectFinishPeriod=document.getElementById("project-finish").value;
 
           var projectId=getProjectId();
-          let url="kumanomim2.web.app/project.html"+"?id="+projectId;
+          let url="project.html?project="+projectId;
           console.log(projectName);
           console.log(url);
           createProject(projectName,projectStartPeriod,projectFinishPeriod,projectId,url);
           console.log("成功");
-          //window.location=url;
+          window.location=url;
         }
 
         function getProjectId(){
