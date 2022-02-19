@@ -41,11 +41,11 @@
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
 
-
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
     var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
     $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
     var finish = getProjectPeriodFinish();
+    console.log(finish);
     for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
         $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
     }
@@ -57,7 +57,10 @@
         }
     }
     //それぞれのメンバーの行--------------
-    for (var i = 0; i < getProjectMembers().length; i++) {
+    console.log(async(getProjectMembers()));
+    var memberNum = async(getProjectMembers());
+    console.log(memberNum);
+    for (var i = 0; i < memberNum.length; i++) {
         var memberRow = getProjectMemberSchedule(i);
         var tableRow = $("<tr></tr>").appendTo(tableTag);
         $("<td>" + getProjectMembers()[i] + "</td>").appendTo(tableRow);
@@ -119,7 +122,17 @@
         }
         return i;
     }
+    
     //仮のfunction----------------------------------------------------
+    function getParam(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
     function getUserSchedule(uid) {
         return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     }
@@ -127,21 +140,100 @@
         return "ログイン済み";
     }
     /*
-    function getProjectMembers() {
-        var people = ["aa", "bb", "cc"];
-        return people;
-    }
-
-    function getProjectPeriodStart() {
-        return new Date(2022, 2 - 1, 17);
-    }
-    function getProjectPeriodFinish() {
-        return new Date(2022, 2 - 1, 18);
-    }
-    function getProjectMemberSchedule(i) {
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    function getProjectMembers(){
+        let ID;
+        let buff;
+        ID = getParam("project");
+        const docRef = db.ref("project/ID");
+        let members;
+        docRef.get().then((doc)=>{
+            members = doc.data();
+            console.log(members);
+        }).catch((error)=>{
+            console.log("データ取得失敗");
+        })
+        return members;
     }
     */
+    
+    async function getProjectMembers(){
+        let ID;
+        let buff;
+        
+        
+        ID = getParam("project");
+        buff = await db.collection("project").doc(ID).get().then((querySnapshot) => {
+             //console.log(querySnapshot.data()["projectmenberName"]);
+             let temp = querySnapshot.data()["projectmenberName"];
+             console.log(temp);
+             //buff = querySnapshot.data()["projectmenberName"];
+             //console.log(buff);
+             //return buff; //MemberのMがfirebaseで小文字になってる
+             //console.log(start);
+            //const docSnapshot = querysnapshot.docs;
+            //console.log(docSnapshot);
+            return temp;
+        })
+        .catch((error)=>{
+            console.log("データの取得失敗");
+        })
+        console.log(buff);
+        return buff; //MemberのMがfirebaseで小文字になってる
+    }
+
+    function getProjectPeriodStart(){
+        let ID;
+        
+        ID = getParam("project");
+        var buff;
+        
+        buff = db.collection("project").doc(ID);
+        var start = buff.get().then((querySnapshot) => {
+             //console.log(querySnapshot.data()["projectPeiriod"]); 
+             let start =new Date(querySnapshot.data()["projectPeiriod"][0]/10000,(querySnapshot.data()["projectPeiriod"][0]%10000)/100,(querySnapshot.data()["projectPeiriod"][0]%100));
+             //console.log(start);
+             return start;
+        })
+        .catch((error)=>{
+            console.log("データの取得失敗");
+        })
+        return start;
+    }
+
+    function getProjectPeriodFinish(){
+        let ID;
+        
+        ID = getParam("project");
+        var buff;
+        
+        buff = db.collection("project").doc(ID);
+        buff.get().then((querySnapshot) => {
+             //console.log(querySnapshot.data()["projectPeiriod"]); 
+             let end =new Date(querySnapshot.data()["projectPeiriod"][1]/10000,(querySnapshot.data()["projectPeiriod"][1]%10000)/100,(querySnapshot.data()["projectPeiriod"][1]%100));
+             //console.log(end);
+             return end;
+        })
+        .catch((error)=>{
+            console.log("データの取得失敗");
+        })   
+    }
+
+    function getProjectMemberSchedule(memberIndex){
+        var data = [];
+
+        db.collection("project").doc(ID).collection(projectMenberPeriod).where("memberIndex","==",memberIndex)
+        .get()
+        .then((querySnapshot) =>{
+            querySnapshot.forEach((doc) => {
+                data = doc.data()["projectSchedule"];
+                //projectSchedule.push(data.projectSchedule);
+            });
+        }).catch((error) => {
+            console.log("データの取得に失敗しました(${error})");
+        })
+        return data;
+    }
+    
     //テーブルのドラックした時の処理---------------------------------------
     var isMouseDown = false;
     $(".drag")
