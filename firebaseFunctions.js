@@ -20,7 +20,7 @@ function getUserSchedule(uid){
     /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
     var projectId = getParam("project");
     var period = [];
-    period = db.collection("project").doc(projectID).doc("projectPeriod").get();
+    period = db.collection("project").doc(projectId).doc("projectPeriod").get();
     /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
     var projectPeriodMySchedule = [];
     projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
