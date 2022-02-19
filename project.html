@@ -40,33 +40,47 @@
     //メモ$("#copyUrl")[0]
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
+document.addEventListener('DOMContentLoaded', async(event) => {
 
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
     var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
     $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
-    var finish = getProjectPeriodFinish();
+    var finish = await getProjectPeriodFinish();
+    var start=await getProjectPeriodStart();
+    console.log(start);
     console.log(finish);
-    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+    
+    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
         $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
     }
+    
+    console.log(start);
+    console.log(finish);
+    console.log(i);
     var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
     $("<th></th>").appendTo(tableSecondRow);
-    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
-        for (var j = 0; j < 24; j++) {
+    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+        for (let j = 0; j < 24; j++) {
             $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+            console.log("colspan6");
         }
+        console.log("for");
     }
+    
+    console.log(start);
+    console.log(finish);
+    console.log(i);
     //それぞれのメンバーの行--------------
-    console.log(async(getProjectMembers()));
-    var memberNum = async(getProjectMembers());
+    var memberNum = await getProjectMembers();
     console.log(memberNum);
-    for (var i = 0; i < memberNum.length; i++) {
-        var memberRow = getProjectMemberSchedule(i);
+    for (let i = 0; i < memberNum.length; i++) {
+        var memberRow =  await getProjectMemberSchedule(i);
+        console.log(memberRow);
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<td>" + getProjectMembers()[i] + "</td>").appendTo(tableRow);
+        $("<td>" + memberNum[i] + "</td>").appendTo(tableRow);
         var count = 0;
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
+        for (let j = start; j <= finish; j.setDate(j.getDate() + 1)) {
+            for (let k = 0; k < 144; k++) {
                 if (memberRow[count] == 0) {
                     $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
                 } else {
@@ -90,9 +104,9 @@
     if (uid != null) {
         //ログインした人のための処理----------
         $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
-        var userSchedule = getUserSchedule(uid);
+        var userSchedule = await getUserSchedule(uid);
         var i = 0;
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+        for (var j = start; j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
                 if (userSchedule[i] == 0) {
                     $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
@@ -107,7 +121,7 @@
         //ログインしてない人のための処理-------
         var i = 0;
         $("<button id=\"modalOpen\" onclick=\"modalOpen()\"> + </button>").appendTo(plusCellbox);
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+        for (var j = start; j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
                 $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
                 i++;
@@ -116,6 +130,7 @@
     }
 
     $("#dragTableArea").append(tableTag);
+});
 
     function getProjectPeriod() {
         for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
@@ -160,9 +175,9 @@
         let ID;
         let buff;
         
-        
         ID = getParam("project");
-        buff = await db.collection("project").doc(ID).get().then((querySnapshot) => {
+        buff = await db.collection("project").doc(ID).get()
+        .then((querySnapshot) => {
              //console.log(querySnapshot.data()["projectmenberName"]);
              let temp = querySnapshot.data()["projectmenberName"];
              console.log(temp);
@@ -181,12 +196,10 @@
         return buff; //MemberのMがfirebaseで小文字になってる
     }
 
-    function getProjectPeriodStart(){
+    async function getProjectPeriodStart(){
         let ID;
-        
         ID = getParam("project");
         var buff;
-        
         buff = db.collection("project").doc(ID);
         var start = buff.get().then((querySnapshot) => {
              //console.log(querySnapshot.data()["projectPeiriod"]); 
@@ -197,17 +210,16 @@
         .catch((error)=>{
             console.log("データの取得失敗");
         })
+        //console.log("取得S"+start);
         return start;
     }
 
-    function getProjectPeriodFinish(){
+    async function getProjectPeriodFinish(){
         let ID;
-        
         ID = getParam("project");
         var buff;
-        
         buff = db.collection("project").doc(ID);
-        buff.get().then((querySnapshot) => {
+        var finish=await buff.get().then((querySnapshot) => {
              //console.log(querySnapshot.data()["projectPeiriod"]); 
              let end =new Date(querySnapshot.data()["projectPeiriod"][1]/10000,(querySnapshot.data()["projectPeiriod"][1]%10000)/100,(querySnapshot.data()["projectPeiriod"][1]%100));
              //console.log(end);
@@ -216,22 +228,32 @@
         .catch((error)=>{
             console.log("データの取得失敗");
         })   
+        //console.log("取得F"+finish);
+        return finish;
     }
 
-    function getProjectMemberSchedule(memberIndex){
+    async function getProjectMemberSchedule(memberIndex){
+        /*
+        var ID=getParam("project");
         var data = [];
-
-        db.collection("project").doc(ID).collection(projectMenberPeriod).where("memberIndex","==",memberIndex)
-        .get()
-        .then((querySnapshot) =>{
-            querySnapshot.forEach((doc) => {
-                data = doc.data()["projectSchedule"];
+        data=await db.collection("project").doc(ID).collection("projectMenberPeriod").where("memberIndex","==",memberIndex)
+        .get().then((querySnapshot) =>{
+            let snap= querySnapshot.forEach((doc) => {
+                let temp = doc.data()["projectSchedule"];
                 //projectSchedule.push(data.projectSchedule);
+                console.log(temp);
+                return temp;
             });
+            console.log(snap);
+            return snap;
         }).catch((error) => {
             console.log("データの取得に失敗しました(${error})");
         })
+        console.log(data);
         return data;
+        */
+        return [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1
+];
     }
     
     //テーブルのドラックした時の処理---------------------------------------
