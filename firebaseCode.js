@@ -1,6 +1,18 @@
 
 
 /*firebaseの関数を書いたファイル*/
+let db = firebase.firestore;
+
+
+function getParam(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 //Date型の日付をintの形に変換
 function transDateToInt(date){
@@ -153,9 +165,10 @@ function getMySchedule(uid){
 
 function getProjectMembers(){
     let ID;
-    
+    var buff;
+
     ID = getParam("project");
-    db.collection("project").doc(ID).data()["projectMemberName"];
+    buff = db.collection("project").doc(ID).data()["projectMemberName"];
     /*.then((query)=>{
         var buff = [];
         query.forEach((doc)=>{
@@ -202,7 +215,7 @@ function getProjectPeriodFinish(){
 function getProjectMemberSchedule(menberIndex){
     var data = [];
 
-    db.collection("project").doc(ID).collection(projectMenberPeriod).where("menberIndex","==",menberIndex)
+    db.collection("project").doc(ID).collection(projectMenberPeriod).where("memberIndex","==",memberIndex)
     .get()
     .then((querySnapshot) =>{
         querySnapshot.forEach((doc) => {
