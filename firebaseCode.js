@@ -52,24 +52,24 @@ function setMySchedule( uid, mySchedule){
                 scheduleId[i] = doc.id;
                 i++;
             });
-        }).catch((error) => {
+
+            var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
+            //ループして全部更新
+            for(i = 0;i < 60;i++,index = index + 144){
+                scheduleDate = transDateToInt(today);   //日付の指定
+                
+                //データの保存
+                db.collection("account").doc(uid).collection("mySchedule").doc(scheduleId[i]).set({
+                    date: scheduleDate,
+                    mySchedule: mySchedule.slice(index,index + 144)
+                })
+                
+                today.setDate(today.getDate() + 1);     //日付を1日進める
+            }
+        }
+        ).catch((error) => {
         console.log("データ取得失敗(${error})");
     });
-    
-    var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
-
-    //ループして全部更新
-    for(i = 0;i < 60;i++,index = index + 144){
-        scheduleDate = transDateToInt(today);   //日付の指定
-
-        //データの保存
-        db.collection("account").doc(uid).collection("mySchedule").doc(scheduleId[i]).set({
-            date: scheduleDate,
-            mySchedule: mySchedule.slice(index,index + 144)
-        })
-
-        today.setDate(today.getDate() + 1);     //日付を1日進める
-    }
 }
 
 /*my日程を取得する関数.小塚*/
@@ -77,60 +77,65 @@ function getMySchedule(uid){
 
     var today = new Date();     //今日の日付を取得
     var finalDay = new Date();
-
+    
     var stringDay;
-
-    finalDay.setDate(finalDay.getDate + 59);    //登録可能な一番遠い日付を入れておく
-
+    
+    finalDay.setDate(finalDay.getDate() + 59);    //登録可能な一番遠い日付を入れておく
+    
     stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
-
+    
     var intToday = transDateToInt(stringDay);      //今日の日付をintの形に変換
-
+    
     var pastDataId = [];     //過去の日付のドキュメントIDを入れる配列
     var defaultPeriod = [];  //初期状態の日程
     var i = 0;               //ループ用
-
+    
     //初期状態の生成
     for(i = 0;i < 144;i++){
         defaultPeriod[i] = 1;
     }
-
+    
     i = 0;  //iの初期化
+    var idBuff = [];
     //過去の日付のデータ検索.ドキュメントIDを保存
     db.collection("account").doc(uid).collection("myScheduleId").where("date","<",intToday).get()
     .then(
         (querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 //var data = doc.data();
+                console.log(doc.id);
                 pastDataId[i] = doc.id;
                 i++;
         });
+        
+        //過去のデータを更新
+        for(i = 0;i < pastDataId.length;i++){
+          console.log("データ更新開始");
+          stringDay = finalDay.getFullYear() + "-" + finalDay.getMonth() + "-" + finalDay.getDate();
+          var intDate = transDateToInt(stringDay);
+          //過去のデータのドキュメントを入力されていない日付のデータとして更新
+          db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({
+            date : intDate,
+            mySchedule : defaultPeriod
+          })
+          finalDay.setDate(finalDay.getDate() - 1);
+      }
     }).catch((error) => {
         console.log("データ取得失敗(${error})");
     });
-
-    //過去のデータを更新
-    for(i = 0;i < pastDataId.length;i++){
-
-        //過去のデータのドキュメントを入力されていない日付のデータとして更新
-        db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({
-            date : transDateToInt(finalDay),
-            mySchedule : defaultPeriod
-        })
-
-        finalDay.setDate(finalDay.getDate - 1);
-    }
-
+    
     var mySchedule = [];      //今日から順にデータを入れておく
     var data; 
-
+    
+    console.log("データ取得開始");
     //日付で昇順にして日程を取得
     db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
     .then(
         (querySnapshot) => {
             querySnapshot.forEach((doc) => {
-                data = doc.data();
-
+                data = doc.data()["mySchedule"];
+    
+                console.log("でーた取得中");
                 //値渡しで日程をコピー
                 for(var k = 0; k < 144;k++){
                     mySchedule[mySchedule.length + k] = data[k];
@@ -139,7 +144,7 @@ function getMySchedule(uid){
     }).catch((error) => {
         console.log("データ取得失敗(${error})");
     });
-
+    
     return mySchedule;
 }
 
