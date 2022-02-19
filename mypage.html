@@ -16,7 +16,7 @@
 <body>
     <div id="dragTableArea"></div>
     <div id="moveScheduleSave">
-        <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
+        <button id="scheduleSaveButton" onclick="scheduleSave()" style="z-index: 5;">登録</button>
     </div>
     <div id="space"></div>
 
@@ -27,7 +27,7 @@
     var uid = "a";
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
     var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th></th>").appendTo(tableFirstRow);
+    $("<th class=\"fix\"></th>").appendTo(tableFirstRow);
     for (var i = 0; i < 24; i++) {
         $("<th colspan=\"6\" class=\"time\">" + i + ":" + "</th>").appendTo(tableFirstRow);
     }
@@ -36,7 +36,7 @@
     var count = 0;
     for (var i = 0; i < 60; i++) {
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<th>" + date + "</th>").appendTo(tableRow);
+        $("<th class=\"date\">" + date + "</th>").appendTo(tableRow);
         for (var j = 0; j < 144; j++) {
             if (userSchedule[count] == 0) {
                 $("<td id=\"cell" + count + "\" class=\"drag\"></td>").appendTo(tableRow);
@@ -128,6 +128,26 @@
     #space {
         height: 108px;
     }
+
+    
+    .fix, .time, .date{
+        position: sticky;
+        background: white;
+    }
+    .fix{
+        top:0;
+        left: 0;
+        z-index: 3;
+    }
+    .date{
+        left: 0;
+        z-index: 2;
+    }
+    .time{
+        top: 0;
+        z-index: 1;
+    }
+
 </style>
 
 </html>

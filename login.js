@@ -36,6 +36,7 @@ function createUser() {
   });
 }
 
+var projectId="";
 //ログイン処理
 function login() {
   var userName= document.getElementById('name').value;
@@ -45,7 +46,15 @@ function login() {
   firebase.auth().signInWithEmailAndPassword(mailAddress, password)
   .then(function(){
     userid = firebase.auth().currentUser.uid;
-    loginDisplay();
+    let url=location.href;
+    if(url.match(/project/)){
+      let temp=url.split("project=",2);
+      projectId=temp[1];
+      window.location="project.html?project="+projectId;
+    }
+    else{
+      loginDisplay();
+    }
   })
   .catch(function(error) {
     alert('ログインできません（' + error.message + '）');
