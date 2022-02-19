@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="utf-8">
-
     <!--  -->
   <script src="/__/firebase/6.2.0/firebase-app.js"></script>
   <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
@@ -15,110 +14,132 @@
 </head>
 
 <body>
+    <!-- コピー対象要素とコピーボタン -->
+    <input id="copyUrl" type="url" readonly>
+    <button onclick="copyToClipboard()">URLをコピー</button>
+
     <div id="dragTableArea"></div>
-
-    <button id="modalOpen" onclick="modalOpen()"> + </button>
-        <div id="loginModal" class="modal">
-            <div class="modal-content">
-                <div class="modalBody">
-                    <h1>ユーザー追加</h1>
-                    <button id="modal-body-close" onclick="modalBodyClose()">×</button>
-                    <button id="login" onclick="window.location='login.html'">ログインしてMyページを利用</button>
-                    <button id="unknown" onclick="modalNameOpen()">ログインせずに利用</button>
-                </div>
-                <div class="modalName" style="display:none">
-                    <h1>ログイン</h1>
-                    <button id="modal-name-close" onclick="modalNameClose()">×</button>
-                    <input id='unknown-name' type='text' placeholder='名前'>
-                    <button id='name-decision' onclick="nameDecision()">決定</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- コピー対象要素とコピーボタン -->
-        <input id="copyUrl" type="url" readonly>
-        <button onclick="copyToClipboard()">URLをコピー</button>
-
-
-        <script>
-            let db=firebase.firestore();
-            //modalを表示・非表示する
-            var modal = document.getElementById('loginModal');
-            var bodyModal=document.getElementsByClassName('modalBody')[0];
-            var nameModal=document.getElementsByClassName('modalName')[0];
-
-            function  modalOpen(){
-                modal.style.display='block';
-            };
-            function modalBodyClose(){
-                modal.style.display='none';
-            }
-            function modalNameOpen(){
-                bodyModal.style.display='none';
-                nameModal.style.display='block';
-            }
-            function modalNameClose(){
-                modal.style.display='none';
-                nameModal.style.display="none";
-                bodyModal.style.display="block";
-            }
-            function nameDecision(){
-                let userName=document.getElementById('unknown-name').value;
-                db.collection("project").doc(projectid).update({
-                    projectMemberName:firebase.firestore.FieldValue.arrayUnion(userName)
-                })
-            }
-
-            //URLをコピーする
-            copyUrl.value=location.href;
-            function copyToClipboard() {
-                // コピー対象をJavaScript上で変数として定義する
-                var copyTarget = document.getElementById("copyUrl");
-                // コピー対象のテキストを選択する
-                copyTarget.select();
-                // 選択しているテキストをクリップボードにコピーする
-                document.execCommand("Copy");
-                // コピーをお知らせする
-                alert("コピーできました！ : " + copyTarget.value);
-            }
-        </script>
-
-        <style>
-            .modal{
-                display: none;
-                position: fixed;
-                z-index: 1;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 100%;
-                overflow: auto;
-                background-color: rgba(0,0,0,0.5);
-            }
-            .modalBody, .modalName{
-                background-color: white;
-            }
-        </style>
+    <div id="modal-content">
+        <button id="close" onclick="modalClose()"> × </button>
+        <button id="login" onclick="onClickLogin()">ログイン</button>
+        ログインしないで利用:
+        <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+    </div>
+    <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
 </body>
 <script>
+    //----------------------------------------------------------------
+    let db=firebase.firestore();
+    //ログインしてない人の名前------------
+    var unLoginUserName;
+    var uid = null;
+    //--------------------------------
+    //メモ$("#copyUrl")[0]
+    //テーブル作成------------------------------------------------------
+    //状況の取得------------------------
+
 
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
-    for (var i = 0; i < getProjectPeriod(); i++) {
-        var tableRow = $("<tr></tr>").appendTo(tableTag);
-        for (var j = 0; j < getProjectMembers(); j++) {
-            $("<td></td>").appendTo(tableRow);
+    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
+    $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
+    var finish = getProjectPeriodFinish();
+    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
+    }
+    var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
+    $("<th></th>").appendTo(tableSecondRow);
+    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        for (var j = 0; j < 24; j++) {
+            $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
         }
     }
-    $("#dragTableArea").append(tableTag);
-    function getProjectPeriod() {
-        return 20;
+    //それぞれのメンバーの行--------------
+    for (var i = 0; i < getProjectMembers().length; i++) {
+        var memberRow = getProjectMemberSchedule(i);
+        var tableRow = $("<tr></tr>").appendTo(tableTag);
+        $("<td>" + getProjectMembers()[i] + "</td>").appendTo(tableRow);
+        var count = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if (memberRow[count] == 0) {
+                    $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
+                } else {
+                    $("<td class=\"highlighted\"></td>").appendTo(tableRow);
+                }
+                count++;
+            }
+        }
     }
-    function getProjectMembers() {
-        return 3;
+    //新規欄-----------------------------------------------------------
+    var tableRow = $("<tr></tr>").appendTo(tableTag);
+    var plusCellbox = $("<td></td>").appendTo(tableRow);
+    //認証状態の確認
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            userid = firebase.auth().currentUser.uid;
+        }
+    });
+    //-仮用--------------------------------------------------------------------------------------------------------------------------------------
+    //uid = "a";
+    if (uid != null) {
+        //ログインした人のための処理----------
+        $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
+        var userSchedule = getUserSchedule(uid);
+        var i = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if (userSchedule[i] == 0) {
+                    $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                } else {
+                    $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
+                }
+                i++;
+            }
+        }
+    }
+    else {
+        //ログインしてない人のための処理-------
+        var i = 0;
+        $("<button id=\"modalOpen\" onclick=\"modalOpen()\"> + </button>").appendTo(plusCellbox);
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                i++;
+            }
+        }
     }
 
+    $("#dragTableArea").append(tableTag);
+
+    function getProjectPeriod() {
+        for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+        }
+        return i;
+    }
+    //仮のfunction----------------------------------------------------
+    function getUserSchedule(uid) {
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    }
+    function getUserName(uid) {
+        return "ログイン済み";
+    }
+    function getProjectMembers() {
+        var people = ["aa", "bb", "cc"];
+        return people;
+    }
+
+    function getProjectPeriodStart() {
+        return new Date(2022, 2 - 1, 17);
+    }
+    function getProjectPeriodFinish() {
+        return new Date(2022, 2 - 1, 18);
+    }
+    function getProjectMemberSchedule(i) {
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    }
+    //テーブルのドラックした時の処理---------------------------------------
     var isMouseDown = false;
-    $("#dragTableArea td")
+    $(".drag")
         .mousedown(function () {
             isMouseDown = true;
             $(this).toggleClass("highlighted");
@@ -129,25 +150,147 @@
                 $(this).toggleClass("highlighted");
             }
         });
-
     $(document)
         .mouseup(function () {
             isMouseDown = false;
         });
+    //ログイン画面へ遷移--------------------------------------------
+    function onClickLogin(){
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                userid = firebase.auth().currentUser.uid;
+            }
+            else{
+                let projectId=getParam("project");
+                window.location="login.html?project="+projectId;
+            }
+        });
+    }
+    //----------------------------------------------------------------
+    //URLをコピーする---------------------------------------------------
+    copyUrl.value = location.href;
+    function copyToClipboard() {
+        // コピー対象をJavaScript上で変数として定義する
+        var copyTarget = $("#copyUrl")[0];
+        // コピー対象のテキストを選択する
+        copyTarget.select();
+        // 選択しているテキストをクリップボードにコピーする
+        document.execCommand("Copy");
+        // コピーをお知らせする
+        alert("コピーできました! : " + copyTarget.value);
+    }
+    //ログインしていない人が名前を入力したとき-------------------------------
+    $("#unLoginUserName")[0].addEventListener("keypress", getUnLoginUserName);
+    function getUnLoginUserName(e) {
+        if (e.keyCode === 13) {
+            unLoginUserName = $("#unLoginUserName").val();
+            $("#modalOpen").hide();
+            $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
+
+        }
+    }
+    //表示非表示時の変更-----------------
+    //modalを表示・非表示する
+    var modal = document.getElementById('modal-content');
+    //var bodyModal=document.getElementsByClassName('modalBody')[0];
+    //var nameModal=document.getElementsByClassName('modalName')[0];
+
+    function  modalOpen(){
+        console.log("open");
+        modal.style.display='block';
+    };
+    function modalClose(){
+        console.log("close");
+        modal.style.display='none';
+    }
+    /*function modalNameOpen(){
+        bodyModal.style.display='none';
+        nameModal.style.display='block';
+    }
+    function modalNameClose(){
+        modal.style.display='none';
+        nameModal.style.display="none";
+        bodyModal.style.display="block";
+    }
+    function nameDecision(){
+        let userName=document.getElementById('unknown-name').value;
+        db.collection("project").doc(projectid).update({
+            projectMemberName:firebase.firestore.FieldValue.arrayUnion(userName)
+        })
+    } */   
+    //登録ボタンが押されたときの処理---------------------------------------
+    function scheduleSave() {
+        var scheduleArray = [];
+        var i = 0;
+        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if ($("#cell" + i).hasClass("highlighted")) {
+                    scheduleArray.push(1);
+                } else {
+                    scheduleArray.push(0);
+                }
+                i++;
+            }
+        }
+        if (uid != null) {
+            //ログインした人のための処理----------
+            setLoginMember(getProjectMembers().length + 1, scheduleArray);
+        } else {
+            //ログインしてない人のための処理-------
+            setJoinMember(getUserName(uid), scheduleArray);
+        }
+    }
 
 </script>
+<script src="firebaseCode.js"></script>
+<script src="firebaseFunctions.js"></script>
 <style>
-    table td {
-        width: 100px;
-        height: 100px;
+    table td.drag {
+        min-width: 20px;
+        height: 10px;
         text-align: center;
         vertical-align: middle;
         background-color: #ccc;
         border: 1px solid #fff;
     }
 
+    th {
+        text-align: left;
+        border: 0.5px solid black;
+    }
+
+    table td.notHighlight {
+        min-width: 20px;
+        height: 10px;
+        text-align: center;
+        vertical-align: middle;
+        background-color: #ccc;
+        border: 1px solid #fff;
+    }
+
+
     table td.highlighted {
-        background-color: #999;
+        /*background-color: #999;*/
+        background-color: rgb(240, 173, 96);
+    }
+
+    table {
+        display: block;
+        overflow-x: scroll;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #modal-content{
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
     }
 </style>
 

@@ -12,8 +12,13 @@ function getParam(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-//データベースに関する機能の取得
-let db = firebase.firestore();
+//書き込み	set
+//更新	update
+//読み取り	onおよびonce
+//削除	removeか、nullを書き込む
+
+//データベースに関する
+//let db = firebase.firestore();
 
 /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
 function getUserSchedule(uid){
