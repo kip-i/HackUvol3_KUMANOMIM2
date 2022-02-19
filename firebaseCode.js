@@ -28,11 +28,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        menberId:  ["1"],
+        menberId:  [null],
         projectName: projectName,
         projectPeiriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmenberName: ["1"]
+        projectmenberName: [null]
     })
 }
 
@@ -150,33 +150,32 @@ function getProjectMembers(){
     let ID;
     
     ID = getParam("project");
-    db.collection("project").collection(ID).get().then((query)=>{
+    db.collection("project").doc(ID).data()["projectMemberName"];
+    /*.then((query)=>{
         var buff = [];
         query.forEach((doc)=>{
             var data = doc.data();
-            buff.push([doc.projectMemberName]);
+            buff.push([data.projectMemberName]);
         });
     })
     .catch((error)=>{
         console.log("データの取得に失敗しました(${error})");
     });
+    */
     return buff;//参加者の名前が入った配列を返す
 }
 
 function getProjectperiodStart(){
     let ID;
-
     ID = getParam("project");
-    start = new date();
-    
+    //start = new Date();
     var docRef=db.collction("project").doc(ID);
+    //docRef.get().then((doc)=>{
+        var buff = doc.data()["projectPeriod[0]"];
+        //buff.push([doc.projectPeriod[0]]);
+    //})
 
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[0]]);
-    })
-
-    start(buff[0]/10000,(buff[0]%10000)/100,(buff[0]%100));
+    let start=new Date(buff[0]/10000,(buff[0]%10000)/100,(buff[0]%100));
     return start;
 }
 
@@ -184,14 +183,14 @@ function getProjectPeriodFinish(){
     let ID;
     
     ID = getParam("project");
-    end = new date();
+    //end = new date();
 
     var docRef = db.collection("project").doc(ID);
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[1]]);
-    })
-    end(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
+    //docRef.get().then((doc)=>{
+        var buff = doc.data()["projectPeriod[1]"];
+    //    buff.push([doc.projectPeriod[1]]);
+    //})
+    let end=new Date(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
     return end;
 }
 
