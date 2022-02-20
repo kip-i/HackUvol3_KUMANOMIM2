@@ -50,6 +50,12 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
 
 /*my日程を保存する関数.小塚*/
 function setMySchedule( uid, mySchedule){
+
+    for(let k = 0;k < 60;k++){
+      for(let l = 0; l < 144;l++){
+        mySchedule[k*144 + l] = 0;
+      }
+    }
     
     var today = new Date();     //今日の日付
     var scheduleDate;           //登録する日時をintの形で入れておく変数
@@ -71,7 +77,7 @@ function setMySchedule( uid, mySchedule){
             //ループして全部更新
             for(i = 0;i < 60;i++,index = index + 144){
               
-              var stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+              var stringDay = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
               scheduleDate = transDateToInt(stringDay);   //日付の指定
              
               //データの保存
@@ -97,7 +103,7 @@ function getMySchedule(uid){
     
     finalDay.setDate(finalDay.getDate() + 59);    //登録可能な一番遠い日付を入れておく
     
-    stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+    stringDay = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
     
     var intToday = transDateToInt(stringDay);      //今日の日付をintの形に変換
     
@@ -126,7 +132,7 @@ function getMySchedule(uid){
         //過去のデータを更新
         for(i = 0;i < pastDataId.length;i++){
           console.log("データ更新開始");
-          stringDay = finalDay.getFullYear() + "-" + finalDay.getMonth() + "-" + finalDay.getDate();
+          stringDay = finalDay.getFullYear() + "-" + (finalDay.getMonth() + 1) + "-" + finalDay.getDate();
           var intDate = transDateToInt(stringDay);
           //過去のデータのドキュメントを入力されていない日付のデータとして更新
           db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({

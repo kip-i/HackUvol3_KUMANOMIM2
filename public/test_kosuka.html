@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    
+  <!--  -->
+  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+  <script src="/__/firebase/init.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
+    <title>ログインページ</title>
+    <link rel="stylesheet" href="login.css" />
+    <style>
+      .header-title {
+        padding: 10px;
+        margin-bottom: 100px;
+        font-size: 18px;
+        border-bottom: 1px solid #aaa;
+      }
+      .hide {
+        display: none;
+      }
+      #info {
+        text-align: center;
+        font-size: 4em;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 class="header-title">ログインページ</h1>
+    
+    <div class="container">
+      <div id="inputarea">
+        <input id="name" type="name" placeholder="ユーザ名を入力" required/>
+        <input id="email" type="email" placeholder="メールアドレスを入力" required/>
+        <input id="password" type="password" placeholder="パスワードを入力" required/>
+        <button id="login" onclick="login()">ログイン</button>
+        <button id="newuser" onclick="createUser()">新規登録</button>
+        <button id="naka" onclick="console.log(getMySchedule('EG8wECS0ICU5JBAZrtLYS2WC3vS2'))">データ取得</button>
+        <button id="push" onclick="console.log(setMySchedule('EG8wECS0ICU5JBAZrtLYS2WC3vS2',[]))">データ保存</button>
+      </div>
+    </div>
+    
+    <!-- テキスト表示用 -->
+    <p id="info"></p>
+    
+    <script src="login.js"></script>
+    <script>
+
+      //Date型の日付をintの形に変換
+function transDateToInt(date){
+    
+    var dividDate=date.split("-",3);
+    
+    /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
+    var intDate = parseInt(dividDate[0] * 10000) + parseInt(dividDate[1] * 100) + parseInt(dividDate[2]);
+   
+    return intDate;
+}
+
+async function getMySchedule(uid){
+
+var today = new Date();     //今日の日付を取得
+var finalDay = new Date();
+
+var stringDay;
+
+finalDay.setDate(finalDay.getDate() + 59);    //登録可能な一番遠い日付を入れておく
+
+stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+
+var intToday = transDateToInt(stringDay);      //今日の日付をintの形に変換
+
+var pastDataId = [];     //過去の日付のドキュメントIDを入れる配列
+var defaultPeriod = [];  //初期状態の日程
+var i = 0;               //ループ用
+
+//初期状態の生成
+for(i = 0;i < 144;i++){
+    defaultPeriod[i] = 1;
+}
+
+i = 0;  //iの初期化
+var idBuff = [];
+//過去の日付のデータ検索.ドキュメントIDを保存
+db.collection("account").doc(uid).collection("myScheduleId").where("date","<",intToday).get()
+.then(
+    (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            //var data = doc.data();
+            console.log(doc.id);
+            pastDataId[i] = doc.id;
+            i++;
+    });
+    
+    //過去のデータを更新
+    for(i = 0;i < pastDataId.length;i++){
+      console.log("データ更新開始");
+      stringDay = finalDay.getFullYear() + "-" + finalDay.getMonth() + "-" + finalDay.getDate();
+      var intDate = transDateToInt(stringDay);
+      //過去のデータのドキュメントを入力されていない日付のデータとして更新
+      db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({
+        date : intDate,
+        mySchedule : defaultPeriod
+      })
+      finalDay.setDate(finalDay.getDate() - 1);
+  }
+}).catch((error) => {
+    console.log("データ取得失敗(${error})");
+});
+
+var mySchedule = [];      //今日から順にデータを入れておく
+var data; 
+
+console.log("データ取得開始");
+//日付で昇順にして日程を取得
+db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
+.then(
+    (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            data = doc.data()["mySchedule"];
+
+            console.log("でーた取得中");
+            //値渡しで日程をコピー
+            for(var k = 0; k < 144;k++){
+                mySchedule[mySchedule.length + k] = data[k];
+            }
+    });
+}).catch((error) => {
+    console.log("データ取得失敗(${error})");
+});
+
+return mySchedule;
+
+}
+
+/*my日程を保存する関数.小塚*/
+function setMySchedule( uid, mySchedule){
+
+  console.log("データ保存開始");
+
+    for(let k = 0;k < 60;k++){
+      for(let l = 0; l < 144;l++){
+        mySchedule[k*144 + l] = 0;
+      }
+    }
+    
+    var today = new Date();     //今日の日付
+    var scheduleDate;           //登録する日時をintの形で入れておく変数
+    var scheduleId = [];        //ドキュメントのIDを入れておく配列
+    var i = 0;
+   
+    //ドキュメントのIDをすべて取得
+    db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
+    .then(
+        (querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                //var data = doc.data();
+                console.log(doc.id);
+                scheduleId[i] = doc.id;
+                i++;
+            });
+
+            var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
+            //ループして全部更新
+            for(i = 0;i < 60;i++,index = index + 144){
+              
+              var stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+              scheduleDate = transDateToInt(stringDay);   //日付の指定
+             
+              //データの保存
+              db.collection("account").doc(uid).collection("myScheduleId").doc(scheduleId[i]).set({
+                date: scheduleDate,
+                mySchedule: mySchedule.slice(index,index + 144)
+              })
+              
+              today.setDate(today.getDate() + 1);     //日付を1日進める
+            }
+        }).catch((error) => {
+        console.log("データ取得失敗(${error})");
+    });
+    
+}
+    </script>
+    
+  </body>
+</html>
