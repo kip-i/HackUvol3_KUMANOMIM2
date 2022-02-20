@@ -1,6 +1,18 @@
 
 
 /*firebaseの関数を書いたファイル*/
+//let db = firebase.firestore;
+
+
+function getParam(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 //Date型の日付をintの形に変換
 function transDateToInt(date){
@@ -28,11 +40,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        menberId:  ["1"],
+        menberId:  [null],
         projectName: projectName,
         projectPeiriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmenberName: ["1"]
+        projectmenberName: [null]
     })
 }
 
@@ -166,54 +178,3 @@ async function getMySchedule(uid) {
     console.log(mySchedule);
     return mySchedule;
 }
-
-function getProjectperiodStart(){
-    let ID;
-
-    ID = getParam("project");
-    start = new date();
-    
-    var docRef=db.collction("project").doc(ID);
-
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[0]]);
-    })
-
-    start(buff[0]/10000,(buff[0]%10000)/100,(buff[0]%100));
-    return start;
-}
-
-function getProjectPeriodFinish(){
-    let ID;
-    
-    ID = getParam("project");
-    end = new date();
-
-    var docRef = db.collection("project").doc(ID);
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[1]]);
-    })
-    end(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
-    return end;
-}
-
-function getProjectMemberSchedule(menberIndex){
-    var data = [];
-
-    db.collection("project").doc(ID).collection(projectMenberPeriod).where("menberIndex","==",menberIndex)
-    .get()
-    .then((querySnapshot) =>{
-        querySnapshot.forEach((doc) => {
-            data = doc.data()["projectSchedule"];
-            //projectSchedule.push(data.projectSchedule);
-        });
-    }).catch((error) => {
-        console.log("データの取得に失敗しました(${error})");
-    })
-    return data;
-}
-
-
-

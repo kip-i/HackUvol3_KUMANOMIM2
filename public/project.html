@@ -68,7 +68,7 @@
                 for (let k = 0; k < 144; k++) {
                     if (memberRow[count] == 0) {
                         $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
-                    } else {
+                    } else if (memberRow[count] == 1) {
                         $("<td class=\"highlighted\"></td>").appendTo(tableRow);
                     }
                     count++;
@@ -112,6 +112,34 @@
             }
         }
         $("#dragTableArea").append(tableTag);
+        //テーブルのドラックした時の処理---------------------------------------
+        var isMouseDown = false;
+        $(".drag")
+            .mousedown(function () {
+                isMouseDown = true;
+                $(this).toggleClass("highlighted");
+                return false; // prevent text selection
+            })
+            .mouseover(function () {
+                if (isMouseDown) {
+                    $(this).toggleClass("highlighted");
+                }
+            });
+        $(document)
+            .mouseup(function () {
+                isMouseDown = false;
+            });
+
+        //+ボタンを押された時のログイン関係処理---------------------------------
+        $(".openbtn").click(function () {
+            if (!$(this).hasClass("active")) {
+                $(".hideArea").show();
+            }
+            else {
+                $(".hideArea").hide();
+            }
+            $(this).toggleClass("active");
+        })
     });
 
     async function getProjectPeriod() {
@@ -253,23 +281,7 @@
         ];
     }
 
-    //テーブルのドラックした時の処理---------------------------------------
-    var isMouseDown = false;
-    $(".drag")
-        .mousedown(function () {
-            isMouseDown = true;
-            $(this).toggleClass("highlighted");
-            return false; // prevent text selection
-        })
-        .mouseover(function () {
-            if (isMouseDown) {
-                $(this).toggleClass("highlighted");
-            }
-        });
-    $(document)
-        .mouseup(function () {
-            isMouseDown = false;
-        });
+    
     //ログイン画面へ遷移--------------------------------------------
     function onClickLogin() {
         firebase.auth().onAuthStateChanged(function (user) {
@@ -283,16 +295,7 @@
         });
     }
     //----------------------------------------------------------------
-    //+ボタンを押された時のログイン関係処理---------------------------------
-    $(".openbtn").click(function () {
-        if (!$(this).hasClass("active")) {
-            $(".hideArea").show();
-        }
-        else {
-            $(".hideArea").hide();
-        }
-        $(this).toggleClass("active");
-    })
+    
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
     function copyToClipboard() {
@@ -419,17 +422,6 @@
         -webkit-overflow-scrolling: touch;
     }
 
-    #modal-content {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
 </style>
 
 </html>
