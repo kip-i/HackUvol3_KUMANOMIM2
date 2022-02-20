@@ -42,6 +42,8 @@
 
       </div>
     </div>
+    <!-- テキスト表示用 -->
+    <p id="info"></p>
     
     <script>
       let db=firebase.firestore();
@@ -56,12 +58,12 @@
           else {
             window.location="login.html";
           }
-          });
-        }
+        });
+      }
         function loginDisplay() {
         //  logout.classList.remove('hide');
           inputarea.classList.add('hide');
-          let userName=getUserName(userid);
+          //let userName=getUserName(userid);
           info.textContent = "ログイン中です!";
           window.location="mypage.html";
         }
@@ -69,6 +71,7 @@
           if(!uid){
             uid=firebase.auth().currentUser.uid;
           }
+          console.log(uid);
           var userName=db.collection("account").doc(uid).get().data()["name"];
           return userName;
         }
