@@ -13,10 +13,12 @@
     <button onclick="copyToClipboard()">URLをコピー</button>
 
     <div id="dragTableArea"></div>
-    <div>
+    <div id="loginSelectArea" class="hideArea">
+
         <button id="login" onclick="window.location='login.html'">ログイン</button>
         ログインしないで利用:
         <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+
     </div>
     <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
 </body>
@@ -62,7 +64,6 @@
                 }
                 count++;
             }
-
         }
     }
     //新規欄-----------------------------------------------------------
@@ -95,7 +96,8 @@
     else {
         //ログインしてない人のための処理-------
         var i = 0;
-        $("<button id=\"modalOpen\"> + </button>").appendTo(plusCellbox);
+        //$("<button id=\"modalOpen\" onclick=\"plusButtonClick()\"> + </button>").appendTo(plusCellbox);
+        $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
         for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
             for (var k = 0; k < 144; k++) {
                 $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
@@ -151,7 +153,17 @@
             isMouseDown = false;
         });
 
-    //----------------------------------------------------------------
+    //+ボタンを押された時のログイン関係処理---------------------------------
+    $(".openbtn").click(function () {
+        if (!$(this).hasClass("active")) {
+            $(".hideArea").show();
+        }
+        else {
+            $(".hideArea").hide();
+        }
+        $(this).toggleClass("active");
+    })
+
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
     function copyToClipboard() {
@@ -170,6 +182,7 @@
         if (e.keyCode === 13) {
             unLoginUserName = $("#unLoginUserName").val();
             $("#modalOpen").hide();
+            $(".hideArea").hide();
             $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
 
         }
@@ -202,6 +215,49 @@
 
 </script>
 <style>
+    .hideArea {
+        display: none;
+    }
+
+    .openbtn {
+        position: relative;
+        width: 50px;
+        height: 50px;
+    }
+
+    .openbtn span {
+        display: inline-block;
+        transition: all.4s;
+        position: absolute;
+        left: 13px;
+        height: 2px;
+        background-color: #666;
+
+    }
+
+    .openbtn span:nth-of-type(1) {
+        top: 25px;
+        width: 50%;
+        transform: rotate(90deg);
+    }
+
+    .openbtn span:nth-of-type(2) {
+        top: 25px;
+        width: 50%;
+    }
+
+    .openbtn.active span:nth-of-type(1) {
+
+        transform: rotate(-45deg);
+        width: 50%;
+    }
+
+    .openbtn.active span:nth-of-type(2) {
+
+        transform: rotate(45deg);
+        width: 50%;
+    }
+
     table td.drag {
         min-width: 20px;
         height: 10px;
