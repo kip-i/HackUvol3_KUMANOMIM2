@@ -1,18 +1,7 @@
 
 
 /*firebaseの関数を書いたファイル*/
-//let db = firebase.firestore;
-
-
-function getParam(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
+/*編集者：小塚 */
 
 //Date型の日付をintの形に変換
 function transDateToInt(date){
@@ -40,11 +29,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        menberId:  [null],
+        menberId:  ["1"],
         projectName: projectName,
         projectPeiriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmenberName: [null]
+        projectmenberName: ["1"]
     })
 }
 
