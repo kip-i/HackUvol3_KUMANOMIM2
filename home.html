@@ -87,7 +87,7 @@
           console.log(url);
           createProject(projectName,projectStartPeriod,projectFinishPeriod,projectId,url);
           console.log("成功");
-          window.location=url;
+          //window.location=url;
         }
 
         function getProjectId(){
@@ -116,11 +116,15 @@
             //データベースにドキュメントを更新.決まっていいない値はnullか0
             db.collection("project").doc(projectId).set({
                 URL: url,
-                menberId:  [null],
+                menberId:  [""],
                 projectName: projectName,
-                projectPeiriod: [startTime,endTime],
+                projectPeriod: [startTime,endTime],
                 projectDecisionName: 0,
-                projectmenberName: [null]
+                projectMemberName: [""]
+            })
+            .then(()=>{
+              console.log("seikou");
+              window.location=url;
             })
         }
 
