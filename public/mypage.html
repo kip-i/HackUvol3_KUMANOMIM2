@@ -3,6 +3,12 @@
 
 <head>
     <meta charset="utf-8">
+    <!--  -->
+  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+  <script src="/__/firebase/init.js"></script>
+
     <title></title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
@@ -10,7 +16,7 @@
 <body>
     <div id="dragTableArea"></div>
     <div id="moveScheduleSave">
-        <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
+        <button id="scheduleSaveButton" onclick="scheduleSave()" style="z-index: 5;">登録</button>
     </div>
     <div id="space"></div>
 
@@ -18,19 +24,41 @@
 
 </body>
 <script>
-    var uid = "a";
+    let db=firebase.firestore();
+    var userid="";
+    window.addEventListener('DOMContentLoaded',function() {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if(user) {
+            userid = firebase.auth().currentUser.uid;
+            //loginDisplay();
+            console.log(userid);
+            Load();
+          }
+          else {
+            window.location="login.html";
+          }
+        });
+        return userid;
+    })
+    
+    //var uid = "a";
+    async function Load() {
+//(async function($){
     var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
     var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th></th>").appendTo(tableFirstRow);
+    $("<th class=\"fix\"></th>").appendTo(tableFirstRow);
     for (var i = 0; i < 24; i++) {
         $("<th colspan=\"6\" class=\"time\">" + i + ":" + "</th>").appendTo(tableFirstRow);
     }
     var date = new Date();
-    var userSchedule = getUserSchedule(uid);
+    //userid = getUid();
+    console.log(userid);
+    var userSchedule = await getMySchedule(userid);
+    console.log(userSchedule);
     var count = 0;
     for (var i = 0; i < 60; i++) {
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<th>" + date + "</th>").appendTo(tableRow);
+        $("<th class=\"date\">" + date + "</th>").appendTo(tableRow);
         for (var j = 0; j < 144; j++) {
             if (userSchedule[count] == 0) {
                 $("<td id=\"cell" + count + "\" class=\"drag\"></td>").appendTo(tableRow);
@@ -41,8 +69,12 @@
         }
     }
     $("#dragTableArea").append(tableTag);
+
+
+    
     //テーブルのドラックした時の処理---------------------------------------
-    var isMouseDown = false;
+    //(function($){
+        var isMouseDown = false;
     $(".drag")
         .mousedown(function () {
             isMouseDown = true;
@@ -59,9 +91,138 @@
         .mouseup(function () {
             isMouseDown = false;
         });
+    //})
+};
+//})
     //仮のfunction----------------------------------------------------
+    /*
     function getUserSchedule(uid) {
         return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    }
+    */
+   //Date型の日付をintの形に変換
+    function transDateToInt(date){
+        
+        var dividDate=date.split("-",3);
+        
+        /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
+        var intDate = parseInt(dividDate[0] * 10000) + parseInt(dividDate[1] * 100) + parseInt(dividDate[2]);
+    
+        return intDate;
+    }
+    /*my日程を保存する関数.小塚*/
+    function setMySchedule( uid, mySchedule){
+        
+        var today = new Date();     //今日の日付
+        var scheduleDate;           //登録する日時をintの形で入れておく変数
+        var scheduleId = [];        //ドキュメントのIDを入れておく配列
+        var i = 0;
+    
+        //ドキュメントのIDをすべて取得
+        db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
+        .then(
+            (querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    //var data = doc.data();
+                    console.log(doc.id);
+                    scheduleId[i] = doc.id;
+                    i++;
+                });
+
+                var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
+                //ループして全部更新
+                for(i = 0;i < 60;i++,index = index + 144){
+                
+                var stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+                scheduleDate = transDateToInt(stringDay);   //日付の指定
+                
+                //データの保存
+                db.collection("account").doc(uid).collection("myScheduleId").doc(scheduleId[i]).set({
+                    date: scheduleDate,
+                    mySchedule: mySchedule.slice(index,index + 144)
+                })
+                
+                today.setDate(today.getDate() + 1);     //日付を1日進める
+                }
+            }).catch((error) => {
+            console.log("データ取得失敗(${error})");
+        });
+    }
+
+    /*my日程を取得する関数.小塚*/
+    async function getMySchedule(uid){
+
+        var today = new Date();     //今日の日付を取得
+        var finalDay = new Date();
+        var stringDay;
+        finalDay.setDate(finalDay.getDate() + 59);    //登録可能な一番遠い日付を入れておく
+        stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+        
+        var intToday = transDateToInt(stringDay);      //今日の日付をintの形に変換
+        
+        var pastDataId = [];     //過去の日付のドキュメントIDを入れる配列
+        var defaultPeriod = [];  //初期状態の日程
+        var i = 0;               //ループ用
+        
+        //初期状態の生成
+        for(i = 0;i < 144;i++){
+            defaultPeriod[i] = 1;
+        }
+        
+        i = 0;  //iの初期化
+        var idBuff = [];
+        console.log(i);
+        console.log(uid);
+        //過去の日付のデータ検索.ドキュメントIDを保存
+        db.collection("account").doc(uid).collection("myScheduleId").where("date","<",intToday).get()
+        .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    //var data = doc.data();
+                    console.log(doc.id);
+                    pastDataId[i] = doc.id;
+                    i++;
+            });
+            
+            //過去のデータを更新
+            for(i = 0;i < pastDataId.length;i++){
+            console.log("データ更新開始");
+            stringDay = finalDay.getFullYear() + "-" + finalDay.getMonth() + "-" + finalDay.getDate();
+            var intDate = transDateToInt(stringDay);
+            //過去のデータのドキュメントを入力されていない日付のデータとして更新
+            db.collection("account").doc(uid).collection("myScheduleId").doc(pastDataId[i]).set({
+                date : intDate,
+                mySchedule : defaultPeriod
+            })
+            finalDay.setDate(finalDay.getDate() - 1);
+        }
+        }).catch((error) => {
+            console.log("データ取得失敗(${error})");
+        });
+        
+        var mySchedule = [];      //今日から順にデータを入れておく
+        var data; 
+        
+        console.log("データ取得開始");
+        //日付で昇順にして日程を取得
+        mySchedule=await db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
+        .then(async(querySnapshot) => {
+                let kari=[];
+                kari=await querySnapshot.docs.map((doc) => {
+                    data = doc.data()["mySchedule"];
+                    let temp=[];
+                    console.log("でーた取得中");
+                    //値渡しで日程をコピー
+                    for(var k = 0; k < 144;k++){
+                        temp[mySchedule.length + k] = data[k];
+                    }
+                    return temp;
+                });
+                return kari;
+            }).catch((error) => {
+            console.log("データ取得失敗(${error})");
+        });
+        console.log(mySchedule);
+        return mySchedule;
     }
     //登録ボタンが押されたときの処理---------------------------------------
     function scheduleSave() {
@@ -77,7 +238,8 @@
                 i++;
             }
         }
-        setMySchedule(uid, scheduleArray);
+        console.log(scheduleArray.length);
+        setMySchedule(userid, scheduleArray);
     }
 
 </script>
@@ -122,6 +284,26 @@
     #space {
         height: 108px;
     }
+
+    
+    .fix, .time, .date{
+        position: sticky;
+        background: white;
+    }
+    .fix{
+        top:0;
+        left: 0;
+        z-index: 3;
+    }
+    .date{
+        left: 0;
+        z-index: 2;
+    }
+    .time{
+        top: 0;
+        z-index: 1;
+    }
+
 </style>
 
 </html>
