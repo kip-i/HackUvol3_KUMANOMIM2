@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
     }
     
-    
     console.log(start);
     console.log(finish);
     console.log(i);
@@ -133,8 +132,10 @@ document.addEventListener('DOMContentLoaded', async(event) => {
     $("#dragTableArea").append(tableTag);
 });
 
-    function getProjectPeriod() {
-        for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+    async function getProjectPeriod() {
+        var start=await getProjectPeriodStart();
+        var finish = await getProjectPeriodFinish();
+        for (var i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
         }
         return i;
     }
@@ -149,11 +150,24 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-    function getUserSchedule(uid) {
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
+    function getUserSchedule(uid){
+        /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
+        var projectId = getParam("project");
+        var period = [];
+        period = db.collection("project").doc(projectId).doc("projectPeriod").get();
+        /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
+        var projectPeriodMySchedule = [];
+        projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
+                                                                                            .where("date", "<=", period[1]).get();
+        return projectPeriodMySchedule;
     }
     function getUserName(uid) {
-        return "ログイン済み";
+        if(!uid){
+            uid=firebase.auth().currentUser.uid;
+        }
+        var userName=db.collection("account").doc(uid).get().data()["name"];
+        return userName;
     }
     /*
     function getProjectMembers(){
@@ -376,16 +390,16 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         text-align: left;
         border: 0.5px solid black;
     }
-
-    table td.notHighlight {
+    td{
         min-width: 20px;
         height: 10px;
         text-align: center;
         vertical-align: middle;
-        background-color: #ccc;
         border: 1px solid #fff;
     }
-
+    table td.notHighlight {
+        background-color: #ccc;
+    }
 
     table td.highlighted {
         /*background-color: #999;*/
