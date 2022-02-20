@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    
+  <!--  -->
+  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+  <script src="/__/firebase/init.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
+    <title>ログインページ</title>
+    <link rel="stylesheet" href="login.css" />
+    <style>
+      .header-title {
+        padding: 10px;
+        margin-bottom: 100px;
+        font-size: 18px;
+        border-bottom: 1px solid #aaa;
+      }
+      .hide {
+        display: none;
+      }
+      #info {
+        text-align: center;
+        font-size: 4em;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="header-title">ログインページ</h1>
+    
+    <div class="container">
+      <div id="inputarea">
+        <input id="name" type="name" placeholder="ユーザ名を入力" required/>
+        <input id="email" type="email" placeholder="メールアドレスを入力" required/>
+        <input id="password" type="password" placeholder="パスワードを入力" required/>
+        <button id="login" onclick="login()">ログイン</button>
+        <button id="newuser" onclick="createUser()">新規登録</button>
+      </div>
+    </div>
+    
+    <!-- テキスト表示用 -->
+    <p id="info"></p>
+    
+    <script src="login.js"></script>
+  </body>
+</html>
