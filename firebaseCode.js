@@ -1,7 +1,7 @@
 
 
 /*firebaseの関数を書いたファイル*/
-let db = firebase.firestore;
+//let db = firebase.firestore;
 
 
 function getParam(name, url) {

@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8">
     <!--  -->
-  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
-  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
-  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
-  <script src="/__/firebase/init.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+    <script src="/__/firebase/init.js"></script>
 
     <title></title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -19,8 +19,7 @@
     <button onclick="copyToClipboard()">URLをコピー</button>
 
     <div id="dragTableArea"></div>
-    <div id="modal-content">
-        <button id="close" onclick="modalClose()"> × </button>
+    <div id="loginSelectArea" class="hideArea">
         <button id="login" onclick="onClickLogin()">ログイン</button>
         ログインしないで利用:
         <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
@@ -32,105 +31,88 @@
 <script src="firebaseFunctions.js"></script>
 <script>
     //----------------------------------------------------------------
-    let db=firebase.firestore();
+    let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
     var uid = null;
     //--------------------------------
-    //メモ$("#copyUrl")[0]
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
-document.addEventListener('DOMContentLoaded', async(event) => {
 
-    var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
-    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
-    var finish = await getProjectPeriodFinish();
-    var start=await getProjectPeriodStart();
-    console.log(start);
-    console.log(finish);
-    
-    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-        $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
-    }
-    
-    console.log(start);
-    console.log(finish);
-    console.log(i);
-    var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th></th>").appendTo(tableSecondRow);
-    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-        for (let j = 0; j < 24; j++) {
-            $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
-            console.log("colspan6");
+    document.addEventListener('DOMContentLoaded', async (event) => {
+        //開始日と終了日の取得----------------
+        var finish = await getProjectPeriodFinish();
+        var start = await getProjectPeriodStart();
+        var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
+        //1行目の作成-----------------------
+        var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
+        $("<th rowspan=\"2\"></th>").appendTo(tableFirstRow);
+        for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+            $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
         }
-        console.log("for");
-    }
-    
-    console.log(start);
-    console.log(finish);
-    console.log(i);
-    //それぞれのメンバーの行--------------
-    var memberNum = await getProjectMembers();
-    console.log(memberNum);
-    for (let i = 0; i < memberNum.length; i++) {
-        var memberRow =  await getProjectMemberSchedule(i);
-        console.log(memberRow);
+        //2行目の作成-----------------------
+        var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
+        for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+            for (let j = 0; j < 24; j++) {
+                $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+            }
+        }
+        //それぞれのメンバーの行--------------
+        var memberName = await getProjectMembers();
+        for (let i = 0; i < memberName.length; i++) {
+            var memberRow = await getProjectMemberSchedule(i);
+            var tableRow = $("<tr></tr>").appendTo(tableTag);
+            $("<th>" + memberName[i] + "</th>").appendTo(tableRow);
+            var count = 0;
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
+                    if (memberRow[count] == 0) {
+                        $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
+                    } else {
+                        $("<td class=\"highlighted\"></td>").appendTo(tableRow);
+                    }
+                    count++;
+                }
+            }
+        }
+        //新規欄-----------------------------------------------------------
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<td>" + memberNum[i] + "</td>").appendTo(tableRow);
-        var count = 0;
-        for (let j = start; j <= finish; j.setDate(j.getDate() + 1)) {
-            for (let k = 0; k < 144; k++) {
-                if (memberRow[count] == 0) {
-                    $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
-                } else {
-                    $("<td class=\"highlighted\"></td>").appendTo(tableRow);
+        var plusCellbox = $("<th></th>").appendTo(tableRow);
+        //認証状態の確認
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                userid = firebase.auth().currentUser.uid;
+            }
+        });
+        if (uid != null) {
+            //ログインした人のための処理----------
+            $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
+            var userSchedule = await getUserSchedule(uid);
+            var i = 0;
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
+                    if (userSchedule[i] == 0) {
+                        $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                    } else {
+                        $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
+                    }
+                    i++;
                 }
-                count++;
             }
         }
-    }
-    //新規欄-----------------------------------------------------------
-    var tableRow = $("<tr></tr>").appendTo(tableTag);
-    var plusCellbox = $("<td></td>").appendTo(tableRow);
-    //認証状態の確認
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            userid = firebase.auth().currentUser.uid;
-        }
-    });
-    //-仮用--------------------------------------------------------------------------------------------------------------------------------------
-    //uid = "a";
-    if (uid != null) {
-        //ログインした人のための処理----------
-        $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
-        var userSchedule = await getUserSchedule(uid);
-        var i = 0;
-        for (var j = start; j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
-                if (userSchedule[i] == 0) {
+        else {
+            //ログインしてない人のための処理-------
+            var i = 0;
+            $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
                     $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                } else {
-                    $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
+                    i++;
                 }
-                i++;
             }
         }
-    }
-    else {
-        //ログインしてない人のための処理-------
-        var i = 0;
-        $("<button id=\"modalOpen\" onclick=\"modalOpen()\"> + </button>").appendTo(plusCellbox);
-        for (var j = start; j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
-                $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                i++;
-            }
-        }
-    }
-
-    $("#dragTableArea").append(tableTag);
-});
+        $("#dragTableArea").append(tableTag);
+    });
 
     async function getProjectPeriod() {
         var start=await getProjectPeriodStart();
@@ -139,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         }
         return i;
     }
-    
+
     //仮のfunction----------------------------------------------------
     function getParam(name, url) {
         if (!url) url = window.location.href;
@@ -185,69 +167,69 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         return members;
     }
     */
-    
-    async function getProjectMembers(){
+
+    async function getProjectMembers() {
         let ID;
         let buff;
-        
+
         ID = getParam("project");
         buff = await db.collection("project").doc(ID).get()
-        .then((querySnapshot) => {
-             //console.log(querySnapshot.data()["projectmenberName"]);
-             let temp = querySnapshot.data()["projectmenberName"];
-             console.log(temp);
-             //buff = querySnapshot.data()["projectmenberName"];
-             //console.log(buff);
-             //return buff; //MemberのMがfirebaseで小文字になってる
-             //console.log(start);
-            //const docSnapshot = querysnapshot.docs;
-            //console.log(docSnapshot);
-            return temp;
-        })
-        .catch((error)=>{
-            console.log("データの取得失敗");
-        })
+            .then((querySnapshot) => {
+                //console.log(querySnapshot.data()["projectmenberName"]);
+                let temp = querySnapshot.data()["projectmenberName"];
+                console.log(temp);
+                //buff = querySnapshot.data()["projectmenberName"];
+                //console.log(buff);
+                //return buff; //MemberのMがfirebaseで小文字になってる
+                //console.log(start);
+                //const docSnapshot = querysnapshot.docs;
+                //console.log(docSnapshot);
+                return temp;
+            })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
         console.log(buff);
         return buff; //MemberのMがfirebaseで小文字になってる
     }
 
-    async function getProjectPeriodStart(){
+    async function getProjectPeriodStart() {
         let ID;
         ID = getParam("project");
         var buff;
         buff = db.collection("project").doc(ID);
         var start = buff.get().then((querySnapshot) => {
-             //console.log(querySnapshot.data()["projectPeiriod"]); 
-             let start =new Date(querySnapshot.data()["projectPeiriod"][0]/10000,(querySnapshot.data()["projectPeiriod"][0]%10000)/100,(querySnapshot.data()["projectPeiriod"][0]%100));
-             //console.log(start);
-             return start;
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let start = new Date(querySnapshot.data()["projectPeiriod"][0] / 10000, (querySnapshot.data()["projectPeiriod"][0] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][0] % 100));
+            //console.log(start);
+            return start;
         })
-        .catch((error)=>{
-            console.log("データの取得失敗");
-        })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
         //console.log("取得S"+start);
         return start;
     }
 
-    async function getProjectPeriodFinish(){
+    async function getProjectPeriodFinish() {
         let ID;
         ID = getParam("project");
         var buff;
         buff = db.collection("project").doc(ID);
-        var finish=await buff.get().then((querySnapshot) => {
-             //console.log(querySnapshot.data()["projectPeiriod"]); 
-             let end =new Date(querySnapshot.data()["projectPeiriod"][1]/10000,(querySnapshot.data()["projectPeiriod"][1]%10000)/100,(querySnapshot.data()["projectPeiriod"][1]%100));
-             //console.log(end);
-             return end;
+        var finish = await buff.get().then((querySnapshot) => {
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let end = new Date(querySnapshot.data()["projectPeiriod"][1] / 10000, (querySnapshot.data()["projectPeiriod"][1] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][1] % 100));
+            //console.log(end);
+            return end;
         })
-        .catch((error)=>{
-            console.log("データの取得失敗");
-        })   
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
         //console.log("取得F"+finish);
         return finish;
     }
 
-    async function getProjectMemberSchedule(memberIndex){
+    async function getProjectMemberSchedule(memberIndex) {
         /*
         var ID=getParam("project");
         var data = [];
@@ -267,10 +249,10 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         console.log(data);
         return data;
         */
-        return [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1
-];
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        ];
     }
-    
+
     //テーブルのドラックした時の処理---------------------------------------
     var isMouseDown = false;
     $(".drag")
@@ -289,18 +271,28 @@ document.addEventListener('DOMContentLoaded', async(event) => {
             isMouseDown = false;
         });
     //ログイン画面へ遷移--------------------------------------------
-    function onClickLogin(){
+    function onClickLogin() {
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
                 userid = firebase.auth().currentUser.uid;
             }
-            else{
-                let projectId=getParam("project");
-                window.location="login.html?project="+projectId;
+            else {
+                let projectId = getParam("project");
+                window.location = "login.html?project=" + projectId;
             }
         });
     }
     //----------------------------------------------------------------
+    //+ボタンを押された時のログイン関係処理---------------------------------
+    $(".openbtn").click(function () {
+        if (!$(this).hasClass("active")) {
+            $(".hideArea").show();
+        }
+        else {
+            $(".hideArea").hide();
+        }
+        $(this).toggleClass("active");
+    })
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
     function copyToClipboard() {
@@ -320,38 +312,9 @@ document.addEventListener('DOMContentLoaded', async(event) => {
             unLoginUserName = $("#unLoginUserName").val();
             $("#modalOpen").hide();
             $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
-
         }
     }
-    //表示非表示時の変更-----------------
-    //modalを表示・非表示する
-    var modal = document.getElementById('modal-content');
-    //var bodyModal=document.getElementsByClassName('modalBody')[0];
-    //var nameModal=document.getElementsByClassName('modalName')[0];
 
-    function  modalOpen(){
-        console.log("open");
-        modal.style.display='block';
-    };
-    function modalClose(){
-        console.log("close");
-        modal.style.display='none';
-    }
-    /*function modalNameOpen(){
-        bodyModal.style.display='none';
-        nameModal.style.display='block';
-    }
-    function modalNameClose(){
-        modal.style.display='none';
-        nameModal.style.display="none";
-        bodyModal.style.display="block";
-    }
-    function nameDecision(){
-        let userName=document.getElementById('unknown-name').value;
-        db.collection("project").doc(projectid).update({
-            projectMemberName:firebase.firestore.FieldValue.arrayUnion(userName)
-        })
-    } */   
     //登録ボタンが押されたときの処理---------------------------------------
     function scheduleSave() {
         var scheduleArray = [];
@@ -377,6 +340,49 @@ document.addEventListener('DOMContentLoaded', async(event) => {
 
 </script>
 <style>
+    .hideArea {
+        display: none;
+    }
+
+    .openbtn {
+        position: relative;
+        width: 50px;
+        height: 50px;
+    }
+
+    .openbtn span {
+        display: inline-block;
+        transition: all.4s;
+        position: absolute;
+        left: 13px;
+        height: 2px;
+        background-color: #666;
+
+    }
+
+    .openbtn span:nth-of-type(1) {
+        top: 25px;
+        width: 50%;
+        transform: rotate(90deg);
+    }
+
+    .openbtn span:nth-of-type(2) {
+        top: 25px;
+        width: 50%;
+    }
+
+    .openbtn.active span:nth-of-type(1) {
+
+        transform: rotate(-45deg);
+        width: 50%;
+    }
+
+    .openbtn.active span:nth-of-type(2) {
+
+        transform: rotate(45deg);
+        width: 50%;
+    }
+
     table td.drag {
         min-width: 20px;
         height: 10px;
@@ -413,7 +419,7 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         -webkit-overflow-scrolling: touch;
     }
 
-    #modal-content{
+    #modal-content {
         display: none;
         position: fixed;
         z-index: 1;
@@ -422,7 +428,7 @@ document.addEventListener('DOMContentLoaded', async(event) => {
         height: 100%;
         width: 100%;
         overflow: auto;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
     }
 </style>
 
