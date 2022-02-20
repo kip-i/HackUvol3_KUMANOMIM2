@@ -1,6 +1,7 @@
 
 
 /*firebaseの関数を書いたファイル*/
+/*編集者：小塚 */
 
 //Date型の日付をintの形に変換
 function transDateToInt(date){
@@ -166,54 +167,3 @@ async function getMySchedule(uid) {
     console.log(mySchedule);
     return mySchedule;
 }
-
-function getProjectperiodStart(){
-    let ID;
-
-    ID = getParam("project");
-    start = new date();
-    
-    var docRef=db.collction("project").doc(ID);
-
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[0]]);
-    })
-
-    start(buff[0]/10000,(buff[0]%10000)/100,(buff[0]%100));
-    return start;
-}
-
-function getProjectPeriodFinish(){
-    let ID;
-    
-    ID = getParam("project");
-    end = new date();
-
-    var docRef = db.collection("project").doc(ID);
-    docRef.get().then((doc)=>{
-        var buff = [];
-        buff.push([doc.projectPeriod[1]]);
-    })
-    end(buff[1]/10000,(buff[1]%10000)/100,(buff[1]%100));
-    return end;
-}
-
-function getProjectMemberSchedule(menberIndex){
-    var data = [];
-
-    db.collection("project").doc(ID).collection(projectMenberPeriod).where("menberIndex","==",menberIndex)
-    .get()
-    .then((querySnapshot) =>{
-        querySnapshot.forEach((doc) => {
-            data = doc.data()["projectSchedule"];
-            //projectSchedule.push(data.projectSchedule);
-        });
-    }).catch((error) => {
-        console.log("データの取得に失敗しました(${error})");
-    })
-    return data;
-}
-
-
-
