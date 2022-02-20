@@ -38,6 +38,12 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
 
 /*my日程を保存する関数.小塚*/
 function setMySchedule( uid, mySchedule){
+
+    for(let k = 0;k < 60;k++){
+      for(let l = 0; l < 144;l++){
+        mySchedule[k*144 + l] = 0;
+      }
+    }
     
     var today = new Date();     //今日の日付
     var scheduleDate;           //登録する日時をintの形で入れておく変数
