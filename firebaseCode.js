@@ -54,13 +54,15 @@ function setMySchedule( uid, mySchedule){
     var today = new Date();     //今日の日付
     var scheduleDate;           //登録する日時をintの形で入れておく変数
     var scheduleId = [];        //ドキュメントのIDを入れておく配列
+    var i = 0;
    
     //ドキュメントのIDをすべて取得
-    db.collection("account").doc(uid).collection("myScheduleId").get()
+    db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
     .then(
         (querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 //var data = doc.data();
+                console.log(doc.id);
                 scheduleId[i] = doc.id;
                 i++;
             });
@@ -68,18 +70,19 @@ function setMySchedule( uid, mySchedule){
             var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
             //ループして全部更新
             for(i = 0;i < 60;i++,index = index + 144){
-                scheduleDate = transDateToInt(today);   //日付の指定
-                
-                //データの保存
-                db.collection("account").doc(uid).collection("mySchedule").doc(scheduleId[i]).set({
-                    date: scheduleDate,
-                    mySchedule: mySchedule.slice(index,index + 144)
-                })
-                
-                today.setDate(today.getDate() + 1);     //日付を1日進める
+              
+              var stringDay = today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+              scheduleDate = transDateToInt(stringDay);   //日付の指定
+             
+              //データの保存
+              db.collection("account").doc(uid).collection("myScheduleId").doc(scheduleId[i]).set({
+                date: scheduleDate,
+                mySchedule: mySchedule.slice(index,index + 144)
+              })
+              
+              today.setDate(today.getDate() + 1);     //日付を1日進める
             }
-        }
-        ).catch((error) => {
+        }).catch((error) => {
         console.log("データ取得失敗(${error})");
     });
 }
