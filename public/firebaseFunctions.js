@@ -21,7 +21,7 @@ function getParam(name, url) {
 //let db = firebase.firestore();
 
 /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
-async function getUserSchedule(uid){
+async function getUserSchedule(userId){
     /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
     var projectId = getParam("project");
     var period = [];
@@ -31,12 +31,12 @@ async function getUserSchedule(uid){
     })
     /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
     var projectPeriodMySchedule = [];
-    projectPeriodMySchedule = await db.collection("account").doc(uid).collection("myScheduleId")
+    projectPeriodMySchedule = await db.collection("account").doc(userId).collection("myScheduleId")
     .where("date", ">=", period[0]).where("date", "<=", period[1]).orderBy("date").get()
     .then(async (querySnapshot)=>{
         let kari = [];
             kari = await querySnapshot.docs.map((doc) => {
-                data = doc.data()["mySchedule"];
+                let data = doc.data()["mySchedule"];
                 let temp = [];
                 console.log("でーた取得中");
                 //値渡しで日程をコピー
@@ -59,7 +59,7 @@ async function getUserSchedule(uid){
     return projectPeriodMySchedule;
 }
 
-function setJoinMenber(memberName,newSchedule){
+/*function setJoinMenber(memberName,newSchedule){
     var projectId = getParam("project");
 
     db.collection("project").doc(projectId).set({
@@ -83,9 +83,9 @@ function setJoinMenber(memberName,newSchedule){
     });
 
     return null;
-}
+}*/
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-function setLoginMember(memIndex,schedule){
+/*function setLoginMember(memIndex,schedule){
     var projectId = getParam("project");
 
     db.collection("project").doc(projectId).collection(projectMemberPeriod).set({
@@ -100,4 +100,118 @@ function setLoginMember(memIndex,schedule){
     });
 
     return null;
+}
+*/
+////////////////////////////////////////////////
+function setJoinMember(memberName,newSchedule){
+    console.log("set");
+    setprojectData("","0",memberName,newSchedule);
+
+    /*
+    //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
+    var projectId = getParam("project");
+    var data;
+    //名前の配列を取得
+    let StringMenbaerName = db.collection("project").doc(projectId).get()
+    .then((querySnapshot) => {
+        var buff = querySnapshot.docs.map(doc=>{
+            data = doc.data()["projectMenberName"];
+        })
+        data = data + [memberName];     //新たにメンバーを追加
+   })
+   .catch((error)=>{
+       console.log("データの取得失敗");
+   })
+    db.collection("project").doc(projectId).set({
+        projectMemberName:data
+    })
+    .then(function() {
+        console.log("memberName successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(memberName): ", error);
+    });
+    //名前の設定ここまで
+    db.collection("project").doc(projectId).collection(projectMemberPeriod).add({
+        menberId: "0",
+        projectSchedule:newSchedule,
+        memberIndex:(data.length - 1)
+    })
+    .then(function() {
+        console.log("newSchedule successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(newScedule): ", error);
+    });
+    return null;
+    */
+}
+
+/*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
+async function setLoginMember(memIndex,schedule){
+    //var projectId = getParam("project");
+    //var userId = null;
+
+    //uidの取得
+    /*userId = await firebase.auth().onAuthStateChanged(function (user) {
+        var id = null;
+        if (user) {
+            id = firebase.auth().currentUser.uid;
+        }
+        return id;
+    });
+*/
+    var memberName =await db.collection("account").doc(userId).get()
+    .then((querySnapshot) =>{
+        console.log("start");
+        var buff =  querySnapshot.data()["name"];
+        console.log(buff);
+        return buff;  
+    }).catch((error) => {
+        console.log("データの取得に失敗しました(${error})");
+    })
+
+    setprojectData(userId,memIndex,memberName,schedule);
+
+
+    /*
+    db.collection("project").doc(projectId).collection(projectMemberPeriod).set({
+        memberIndex:memIndex,
+        projectSchedule:schedule
+    })
+    .then(function() {
+        console.log("Document successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document: ", error);
+    });
+    return null;
+    */
+}
+
+
+function setprojectData(userId,memIndex,memberName,newSchedule){
+    var projectId = getParam("project");
+    console.log("kokomade");
+    //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
+    //名前の配列を取得
+    db.collection("project").doc(projectId).update({
+        memberId: firebase.firestore.FieldValue.arrayUnion(userId),
+        projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
+    })
+   .catch((error)=>{
+       console.log("データの取得失敗");
+   })
+
+    db.collection("project").doc(projectId).collection("projectMemberPeriod").add({
+        memberId: userId,
+        projectSchedule:newSchedule,
+        memberIndex:memIndex-1
+    })
+    .then(function() {
+        console.log("newSchedule successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(newScedule): ", error);
+    });
 }
