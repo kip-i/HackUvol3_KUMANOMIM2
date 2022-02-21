@@ -34,10 +34,28 @@ function getUserSchedule(uid){
 }
 
 function setJoinMenber(memberName,newSchedule){
+    
+    setprojectData("0",memberName,newSchedule);
+
+    /*
+    //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
     var projectId = getParam("project");
+    var data;
+    //名前の配列を取得
+    let StringMenbaerName = db.collection("project").doc(projectId).get()
+    .then((querySnapshot) => {
+        var buff = querySnapshot.docs.map(doc=>{
+            data = doc.data()["projectMenberName"];
+        })
+
+        data = data + [memberName];     //新たにメンバーを追加
+   })
+   .catch((error)=>{
+       console.log("データの取得失敗");
+   })
 
     db.collection("project").doc(projectId).set({
-        projectMemberName:memberName
+        projectMemberName:data
     })
     .then(function() {
         console.log("memberName successfully written!");
@@ -45,9 +63,13 @@ function setJoinMenber(memberName,newSchedule){
     .catch(function(error) {
         console.error("Error writing document(memberName): ", error);
     });
+    //名前の設定ここまで
 
-    db.collection("project").doc(projectId).collection(projectMemberPeriod).set({
-        projectSchedule:newSchedule
+
+    db.collection("project").doc(projectId).collection(projectMemberPeriod).add({
+        menberId: "0",
+        projectSchedule:newSchedule,
+        memberIndex:(data.length - 1)
     })
     .then(function() {
         console.log("newSchedule successfully written!");
@@ -57,11 +79,43 @@ function setJoinMenber(memberName,newSchedule){
     });
 
     return null;
+    */
 }
-/*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-function setLoginMember(memIndex,schedule){
-    var projectId = getParam("project");
 
+/*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
+async function setLoginMember(memIndex,schedule){
+    var projectId = getParam("project");
+    var userid = null;
+
+    //uidの取得
+    userid = await firebase.auth().onAuthStateChanged(function (user) {
+        var id = null;
+        if (user) {
+            id = firebase.auth().currentUser.uid;
+        }
+        return id;
+    });
+
+    var data;
+    var menberName =await db.collection("project").doc(projectId).get()
+    .then(async(querySnapshot) =>{
+        console.log("start");
+        
+        var buff = await querySnapshot.docs.map(doc=>{
+            data = doc.data()["name"];
+            return data;
+        })
+        console.log(buff);
+        return buff;
+        
+    }).catch((error) => {
+        console.log("データの取得に失敗しました(${error})");
+    })
+
+    setprojectData(userid,menberName,schedule);
+
+
+    /*
     db.collection("project").doc(projectId).collection(projectMemberPeriod).set({
         memberIndex:memIndex,
         projectSchedule:schedule
@@ -71,6 +125,58 @@ function setLoginMember(memIndex,schedule){
     })
     .catch(function(error) {
         console.error("Error writing document: ", error);
+    });
+
+    return null;
+    */
+}
+
+
+function setprojectData(userid,memberName,newSchedule){
+    var projectId = getParam("project");
+        
+    //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
+    var nameData;
+    var idData;
+    //名前の配列を取得
+    let StringMenbaerName =db.collection("project").doc(projectId).get()
+    .then((querySnapshot) => {
+        querySnapshot.docs.map(doc=>{
+            nameData = doc.data()["projectMenberName"];
+            idData = doc.data()["projectMenberName"];
+        })
+
+        nameData = nameData + [memberName];     //新たにメンバーを追加
+        idData = idData + [userid];             //id追加
+   })
+   .catch((error)=>{
+       console.log("データの取得失敗");
+   })
+
+   //データの更新
+    db.collection("project").doc(projectId).set({
+        memberId: idData,
+        projectMemberName:nameData
+    })
+    .then(function() {
+        console.log("memberName successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(memberName): ", error);
+    });
+    //名前の設定ここまで
+
+
+    db.collection("project").doc(projectId).collection(projectMemberPeriod).add({
+        menberId: userid,
+        projectSchedule:newSchedule,
+        memberIndex:(data.length - 1)
+    })
+    .then(function() {
+        console.log("newSchedule successfully written!");
+    })
+    .catch(function(error) {
+        console.error("Error writing document(newScedule): ", error);
     });
 
     return null;
