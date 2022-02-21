@@ -376,21 +376,21 @@
         }
     }
 /*
-                                                                function getProjectMembers(){
-                                                                    let ID;
-                                                                    let buff;
-                                                                    ID = getParam("project");
-                                                                    const docRef = db.ref("project/ID");
-                                                                    let members;
-                                                                    docRef.get().then((doc)=>{
-                                                                        members = doc.data();
-                                                                        console.log(members);
-                                                                    }).catch((error)=>{
-                                                                        console.log("データ取得失敗");
-                                                                    })
-                                                                    return members;
-                                                                }
-                                                                */
+                                                                    function getProjectMembers(){
+                                                                        let ID;
+                                                                        let buff;
+                                                                        ID = getParam("project");
+                                                                        const docRef = db.ref("project/ID");
+                                                                        let members;
+                                                                        docRef.get().then((doc)=>{
+                                                                            members = doc.data();
+                                                                            console.log(members);
+                                                                        }).catch((error)=>{
+                                                                            console.log("データ取得失敗");
+                                                                        })
+                                                                        return members;
+                                                                    }
+                                                                    */
     /*
     async function getProjectMembers() {
         let ID;
@@ -561,7 +561,7 @@
         text-align: left;
         border: 0.5px solid black;
         background-color: #ccc;
-
+        padding: 0 1em;
     }
 
     td {
