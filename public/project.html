@@ -60,8 +60,7 @@
         }
         //それぞれのメンバーの行--------------
         var memberName = await getProjectMembers();
-        console.log(memberName);
-        console.log(memberName.length);
+
         for (let i = 0; i < memberName.length; i++) {
             var memberRow = await getProjectMemberSchedule(i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
@@ -376,21 +375,21 @@
         }
     }
 /*
-                                                                    function getProjectMembers(){
-                                                                        let ID;
-                                                                        let buff;
-                                                                        ID = getParam("project");
-                                                                        const docRef = db.ref("project/ID");
-                                                                        let members;
-                                                                        docRef.get().then((doc)=>{
-                                                                            members = doc.data();
-                                                                            console.log(members);
-                                                                        }).catch((error)=>{
-                                                                            console.log("データ取得失敗");
-                                                                        })
-                                                                        return members;
-                                                                    }
-                                                                    */
+                                                                        function getProjectMembers(){
+                                                                            let ID;
+                                                                            let buff;
+                                                                            ID = getParam("project");
+                                                                            const docRef = db.ref("project/ID");
+                                                                            let members;
+                                                                            docRef.get().then((doc)=>{
+                                                                                members = doc.data();
+                                                                                console.log(members);
+                                                                            }).catch((error)=>{
+                                                                                console.log("データ取得失敗");
+                                                                            })
+                                                                            return members;
+                                                                        }
+                                                                        */
     /*
     async function getProjectMembers() {
         let ID;

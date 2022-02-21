@@ -21,7 +21,6 @@ function transDateToInt(date){
 *projectEndPeriod       :Date
 */
 function createProject( projectName, projectStartPeriod, projectEndPeriod,projectId,url){
-
     /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
     var startTime = transDateToInt(projectStartPeriod);
     var endTime = transDateToInt(projectEndPeriod);
@@ -29,11 +28,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        menberId:  ["1"],
+        memberId:  ["1"],
         projectName: projectName,
-        projectPeiriod: [startTime,endTime],
+        projectPeriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmenberName: ["1"]
+        projectmemberName: ["1"]
     })
 }
 
