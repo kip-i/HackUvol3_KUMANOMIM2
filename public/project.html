@@ -3,6 +3,12 @@
 
 <head>
     <meta charset="utf-8">
+    <!-- 
+    <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+    <script src="/__/firebase/init.js"></script>
+ -->
     <title></title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
@@ -14,49 +20,57 @@
 
     <div id="dragTableArea"></div>
     <div id="loginSelectArea" class="hideArea">
-
-        <button id="login" onclick="window.location='login.html'">ログイン</button>
+        <button id="login" onclick="onClickLogin()">ログイン</button>
         ログインしないで利用:
         <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
-
     </div>
     <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
 </body>
-<script>
-    //----------------------------------------------------------------
 
+
+<script>
+
+    //----------------------------------------------------------------
+    //==================================================================================================================================
+    //let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
     var uid = null;
     //--------------------------------
-    //メモ$("#copyUrl")[0]
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
-
-
-    var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
-    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th rolspan=\"2\"></th>").appendTo(tableFirstRow);
+    //document.addEventListener('DOMContentLoaded', async (event) => {
+    //開始日と終了日の取得----------------
+    //=======================================================================
+    //var finish = await getProjectPeriodFinish();
+    //var start = await getProjectPeriodStart();
     var finish = getProjectPeriodFinish();
-    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
-        $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
+    var start = getProjectPeriodStart();
+    var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
+    //1行目の作成-----------------------
+    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
+    $("<th class=\"doubleHeading\" rowspan=\"2\"></th>").appendTo(tableFirstRow);
+    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+        $("<th class=\"heading\" colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
     }
+    //2行目の作成-----------------------
     var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th></th>").appendTo(tableSecondRow);
-    for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
-        for (var j = 0; j < 24; j++) {
-            $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+        for (let j = 0; j < 24; j++) {
+            $("<th colspan=\"6\" class=\"heading time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
         }
-
     }
     //それぞれのメンバーの行--------------
-    for (var i = 0; i < getProjectMembers().length; i++) {
+    //var memberName = await getProjectMembers();
+    var memberName = getProjectMembers();
+    for (let i = 0; i < memberName.length; i++) {
+        //var memberRow = await getProjectMemberSchedule(i);
         var memberRow = getProjectMemberSchedule(i);
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<td>" + getProjectMembers()[i] + "</td>").appendTo(tableRow);
+        $("<th class=\"heading\">" + memberName[i] + "</th>").appendTo(tableRow);
         var count = 0;
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
+        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (let k = 0; k < 144; k++) {
                 if (memberRow[count] == 0) {
                     $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
                 } else {
@@ -68,22 +82,25 @@
     }
     //新規欄-----------------------------------------------------------
     var tableRow = $("<tr></tr>").appendTo(tableTag);
-    var plusCellbox = $("<td></td>").appendTo(tableRow);
+    var plusCellbox = $("<th class=\"heading\"></th>").appendTo(tableRow);
+    /*
     //認証状態の確認
-    /*firebase.auth().onAuthStateChanged(function (user) {
+    firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
             userid = firebase.auth().currentUser.uid;
         }
-    });*/
-    //-仮用--------------------------------------------------------------------------------------------------------------------------------------
+    });
+    */
+    //仮のuid=========================================================
     //uid = "a";
     if (uid != null) {
         //ログインした人のための処理----------
         $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
+        //var userSchedule = await getUserSchedule(uid);
         var userSchedule = getUserSchedule(uid);
         var i = 0;
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
+        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (let k = 0; k < 144; k++) {
                 if (userSchedule[i] == 0) {
                     $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
                 } else {
@@ -96,30 +113,51 @@
     else {
         //ログインしてない人のための処理-------
         var i = 0;
-        //$("<button id=\"modalOpen\" onclick=\"plusButtonClick()\"> + </button>").appendTo(plusCellbox);
         $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
-        for (var j = getProjectPeriodStart(); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (var k = 0; k < 144; k++) {
+        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (let k = 0; k < 144; k++) {
                 $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
                 i++;
             }
         }
     }
-
     $("#dragTableArea").append(tableTag);
+    //});
 
     function getProjectPeriod() {
         for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
         }
         return i;
     }
-    //仮のfunction----------------------------------------------------
+
+    //仮のfunction======================================================================================================================
+
+    function getParam(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    function setLoginMember(memberIndex, schedule) {
+
+    }
+
+    function setJoinMember() {
+
+    }
+
     function getUserSchedule(uid) {
         return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     }
+
     function getUserName(uid) {
-        return "ログイン済み";
+        return "ログイン済みさん";
     }
+
     function getProjectMembers() {
         var people = ["aa", "bb", "cc"];
         return people;
@@ -128,12 +166,15 @@
     function getProjectPeriodStart() {
         return new Date(2022, 2 - 1, 17);
     }
+
     function getProjectPeriodFinish() {
         return new Date(2022, 2 - 1, 18);
     }
+
     function getProjectMemberSchedule(i) {
         return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     }
+
     //テーブルのドラックした時の処理---------------------------------------
     var isMouseDown = false;
     $(".drag")
@@ -147,12 +188,24 @@
                 $(this).toggleClass("highlighted");
             }
         });
-
     $(document)
         .mouseup(function () {
             isMouseDown = false;
         });
 
+    //ログイン画面へ遷移--------------------------------------------
+    function onClickLogin() {
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                userid = firebase.auth().currentUser.uid;
+            }
+            else {
+                let projectId = getParam("project");
+                window.location = "login.html?project=" + projectId;
+            }
+        });
+    };
+    //----------------------------------------------------------------
     //+ボタンを押された時のログイン関係処理---------------------------------
     $(".openbtn").click(function () {
         if (!$(this).hasClass("active")) {
@@ -162,8 +215,7 @@
             $(".hideArea").hide();
         }
         $(this).toggleClass("active");
-    })
-
+    });
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
     function copyToClipboard() {
@@ -182,13 +234,9 @@
         if (e.keyCode === 13) {
             unLoginUserName = $("#unLoginUserName").val();
             $("#modalOpen").hide();
-            $(".hideArea").hide();
             $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
-
         }
     }
-    //表示非表示時の変更-----------------
-
 
     //登録ボタンが押されたときの処理---------------------------------------
     function scheduleSave() {
@@ -212,11 +260,138 @@
             setJoinMember(getUserName(uid), scheduleArray);
         }
     }
+/*
+                                                        function getProjectMembers(){
+                                                            let ID;
+                                                            let buff;
+                                                            ID = getParam("project");
+                                                            const docRef = db.ref("project/ID");
+                                                            let members;
+                                                            docRef.get().then((doc)=>{
+                                                                members = doc.data();
+                                                                console.log(members);
+                                                            }).catch((error)=>{
+                                                                console.log("データ取得失敗");
+                                                            })
+                                                            return members;
+                                                        }
+                                                        */
+    /*
+    async function getProjectMembers() {
+        let ID;
+        let buff;
 
+        ID = getParam("project");
+        buff = await db.collection("project").doc(ID).get()
+            .then((querySnapshot) => {
+                //console.log(querySnapshot.data()["projectmenberName"]);
+                let temp = querySnapshot.data()["projectmenberName"];
+                console.log(temp);
+                //buff = querySnapshot.data()["projectmenberName"];
+                //console.log(buff);
+                //return buff; //MemberのMがfirebaseで小文字になってる
+                //console.log(start);
+                //const docSnapshot = querysnapshot.docs;
+                //console.log(docSnapshot);
+                return temp;
+            })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        console.log(buff);
+        return buff; //MemberのMがfirebaseで小文字になってる
+    }
+
+    async function getProjectPeriodStart() {
+        let ID;
+        ID = getParam("project");
+        var buff;
+        buff = db.collection("project").doc(ID);
+        var start = buff.get().then((querySnapshot) => {
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let start = new Date(querySnapshot.data()["projectPeiriod"][0] / 10000, (querySnapshot.data()["projectPeiriod"][0] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][0] % 100));
+            //console.log(start);
+            return start;
+        })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        //console.log("取得S"+start);
+        return start;
+    }
+
+    async function getProjectPeriodFinish() {
+        let ID;
+        ID = getParam("project");
+        var buff;
+        buff = db.collection("project").doc(ID);
+        var finish = await buff.get().then((querySnapshot) => {
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let end = new Date(querySnapshot.data()["projectPeiriod"][1] / 10000, (querySnapshot.data()["projectPeiriod"][1] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][1] % 100));
+            //console.log(end);
+            return end;
+        })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        //console.log("取得F"+finish);
+        return finish;
+    }
+
+    async function getProjectMemberSchedule(memberIndex) {
+        
+        var ID=getParam("project");
+        var data = [];
+        data=await db.collection("project").doc(ID).collection("projectMenberPeriod").where("memberIndex","==",memberIndex)
+        .get().then((querySnapshot) =>{
+            let snap= querySnapshot.forEach((doc) => {
+                let temp = doc.data()["projectSchedule"];
+                //projectSchedule.push(data.projectSchedule);
+                console.log(temp);
+                return temp;
+            });
+            console.log(snap);
+            return snap;
+        }).catch((error) => {
+            console.log("データの取得に失敗しました(${error})");
+        })
+        console.log(data);
+        return data;
+        
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        ];
+    }*/
 </script>
 <style>
     .hideArea {
         display: none;
+    }
+
+    .doubleHeading,
+    .heading {
+        position: sticky;
+        top: 0;
+        left: 0;
+        background-color: #fff;
+    }
+
+    .doubleHeading ::before,
+    .heading ::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #ccc;
+    }
+
+    .doubleHeading {
+        z-index: 2;
+    }
+
+    .heading {
+        z-index: 1;
     }
 
     .openbtn {
@@ -270,6 +445,8 @@
     th {
         text-align: left;
         border: 0.5px solid black;
+        background-color: #ccc;
+
     }
 
     table td.notHighlight {
@@ -283,6 +460,7 @@
 
 
     table td.highlighted {
+        min-width: 20px;
         /*background-color: #999;*/
         background-color: rgb(240, 173, 96);
     }
@@ -292,6 +470,18 @@
         overflow-x: scroll;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
+    }
+
+    #modal-content {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
     }
 </style>
 
