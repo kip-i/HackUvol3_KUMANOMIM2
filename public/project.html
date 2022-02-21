@@ -3,12 +3,11 @@
 
 <head>
     <meta charset="utf-8">
-    <!-- 
+    <!--  -->
     <script src="/__/firebase/6.2.0/firebase-app.js"></script>
     <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
     <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
     <script src="/__/firebase/init.js"></script>
- -->
     <title></title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
@@ -27,111 +26,130 @@
     <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
 </body>
 
-
+<script src="firebaseCode.js"></script>
+<script src="firebaseFunctions.js"></script>
 <script>
-
     //----------------------------------------------------------------
-    //==================================================================================================================================
-    //let db = firebase.firestore();
+    let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
     var uid = null;
     //--------------------------------
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
-    //document.addEventListener('DOMContentLoaded', async (event) => {
-    //開始日と終了日の取得----------------
-    //=======================================================================
-    //var finish = await getProjectPeriodFinish();
-    //var start = await getProjectPeriodStart();
-    var finish = getProjectPeriodFinish();
-    var start = getProjectPeriodStart();
-    var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
-    //1行目の作成-----------------------
-    var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-    $("<th class=\"doubleHeading\" rowspan=\"2\"></th>").appendTo(tableFirstRow);
-    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-        $("<th class=\"heading\" colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
-    }
-    //2行目の作成-----------------------
-    var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
-    for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-        for (let j = 0; j < 24; j++) {
-            $("<th colspan=\"6\" class=\"heading time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
-        }
-    }
-    //それぞれのメンバーの行--------------
-    //var memberName = await getProjectMembers();
-    var memberName = getProjectMembers();
-    for (let i = 0; i < memberName.length; i++) {
-        //var memberRow = await getProjectMemberSchedule(i);
-        var memberRow = getProjectMemberSchedule(i);
-        var tableRow = $("<tr></tr>").appendTo(tableTag);
-        $("<th class=\"heading\">" + memberName[i] + "</th>").appendTo(tableRow);
-        var count = 0;
-        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (let k = 0; k < 144; k++) {
-                if (memberRow[count] == 0) {
-                    $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
-                } else {
-                    $("<td class=\"highlighted\"></td>").appendTo(tableRow);
-                }
-                count++;
-            }
-        }
-    }
-    //新規欄-----------------------------------------------------------
-    var tableRow = $("<tr></tr>").appendTo(tableTag);
-    var plusCellbox = $("<th class=\"heading\"></th>").appendTo(tableRow);
-    /*
-    //認証状態の確認
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            userid = firebase.auth().currentUser.uid;
-        }
-    });
-    */
-    //仮のuid=========================================================
-    //uid = "a";
-    if (uid != null) {
-        //ログインした人のための処理----------
-        $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
-        //var userSchedule = await getUserSchedule(uid);
-        var userSchedule = getUserSchedule(uid);
-        var i = 0;
-        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (let k = 0; k < 144; k++) {
-                if (userSchedule[i] == 0) {
-                    $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                } else {
-                    $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
-                }
-                i++;
-            }
-        }
-    }
-    else {
-        //ログインしてない人のための処理-------
-        var i = 0;
-        $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
-        for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
-            for (let k = 0; k < 144; k++) {
-                $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                i++;
-            }
-        }
-    }
-    $("#dragTableArea").append(tableTag);
-    //});
 
-    function getProjectPeriod() {
-        for (var i = getProjectPeriodStart(); i <= finish; i.setDate(i.getDate() + 1)) {
+    document.addEventListener('DOMContentLoaded', async (event) => {
+        //開始日と終了日の取得----------------
+        var finish = await getProjectPeriodFinish();
+        var start = await getProjectPeriodStart();
+        var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
+        //1行目の作成-----------------------
+        var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
+        $("<th rowspan=\"2\"></th>").appendTo(tableFirstRow);
+        for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+            $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
+        }
+        //2行目の作成-----------------------
+        var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
+        for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
+            for (let j = 0; j < 24; j++) {
+                $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+            }
+        }
+        //それぞれのメンバーの行--------------
+        var memberName = await getProjectMembers();
+        for (let i = 0; i < memberName.length; i++) {
+            var memberRow = await getProjectMemberSchedule(i);
+            var tableRow = $("<tr></tr>").appendTo(tableTag);
+            $("<th>" + memberName[i] + "</th>").appendTo(tableRow);
+            var count = 0;
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
+                    if (memberRow[count] == 0) {
+                        $("<td class=\"notHighlight\"></td>").appendTo(tableRow);
+                    } else if (memberRow[count] == 1) {
+                        $("<td class=\"highlighted\"></td>").appendTo(tableRow);
+                    }
+                    count++;
+                }
+            }
+        }
+        //新規欄-----------------------------------------------------------
+        var tableRow = $("<tr></tr>").appendTo(tableTag);
+        var plusCellbox = $("<th></th>").appendTo(tableRow);
+        //認証状態の確認
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                userid = firebase.auth().currentUser.uid;
+            }
+        });
+        if (uid != null) {
+            //ログインした人のための処理----------
+            $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
+            var userSchedule = await getUserSchedule(uid);
+            var i = 0;
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
+                    if (userSchedule[i] == 0) {
+                        $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                    } else {
+                        $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
+                    }
+                    i++;
+                }
+            }
+        }
+        else {
+            //ログインしてない人のための処理-------
+            var i = 0;
+            $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
+            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                for (let k = 0; k < 144; k++) {
+                    $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                    i++;
+                }
+            }
+        }
+        $("#dragTableArea").append(tableTag);
+        //テーブルのドラックした時の処理---------------------------------------
+        var isMouseDown = false;
+        $(".drag")
+            .mousedown(function () {
+                isMouseDown = true;
+                $(this).toggleClass("highlighted");
+                return false; // prevent text selection
+            })
+            .mouseover(function () {
+                if (isMouseDown) {
+                    $(this).toggleClass("highlighted");
+                }
+            });
+        $(document)
+            .mouseup(function () {
+                isMouseDown = false;
+            });
+
+        //+ボタンを押された時のログイン関係処理---------------------------------
+        $(".openbtn").click(function () {
+            if (!$(this).hasClass("active")) {
+                $(".hideArea").show();
+            }
+            else {
+                $(".hideArea").hide();
+            }
+            $(this).toggleClass("active");
+        })
+    });
+
+    async function getProjectPeriod() {
+        var start = await getProjectPeriodStart();
+        var finish = await getProjectPeriodFinish();
+        for (var i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
         }
         return i;
     }
 
-    //仮のfunction======================================================================================================================
-
+    //仮のfunction----------------------------------------------------
     function getParam(name, url) {
         if (!url) url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
@@ -141,57 +159,128 @@
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-
-    function setLoginMember(memberIndex, schedule) {
-
-    }
-
-    function setJoinMember() {
-
-    }
-
+    /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
     function getUserSchedule(uid) {
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+        /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
+        var projectId = getParam("project");
+        var period = [];
+        period = db.collection("project").doc(projectId).doc("projectPeriod").get();
+        /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
+        var projectPeriodMySchedule = [];
+        projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
+            .where("date", "<=", period[1]).get();
+        return projectPeriodMySchedule;
     }
 
     function getUserName(uid) {
-        return "ログイン済みさん";
+        if (!uid) {
+            uid = firebase.auth().currentUser.uid;
+        }
+        var userName = db.collection("account").doc(uid).get().data()["name"];
+        return userName;
     }
-
-    function getProjectMembers() {
-        var people = ["aa", "bb", "cc"];
-        return people;
-    }
-
-    function getProjectPeriodStart() {
-        return new Date(2022, 2 - 1, 17);
-    }
-
-    function getProjectPeriodFinish() {
-        return new Date(2022, 2 - 1, 18);
-    }
-
-    function getProjectMemberSchedule(i) {
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
-    }
-
-    //テーブルのドラックした時の処理---------------------------------------
-    var isMouseDown = false;
-    $(".drag")
-        .mousedown(function () {
-            isMouseDown = true;
-            $(this).toggleClass("highlighted");
-            return false; // prevent text selection
+    /*
+    function getProjectMembers(){
+        let ID;
+        let buff;
+        ID = getParam("project");
+        const docRef = db.ref("project/ID");
+        let members;
+        docRef.get().then((doc)=>{
+            members = doc.data();
+            console.log(members);
+        }).catch((error)=>{
+            console.log("データ取得失敗");
         })
-        .mouseover(function () {
-            if (isMouseDown) {
-                $(this).toggleClass("highlighted");
-            }
-        });
-    $(document)
-        .mouseup(function () {
-            isMouseDown = false;
-        });
+        return members;
+    }
+    */
+
+    async function getProjectMembers() {
+        let ID;
+        let buff;
+
+        ID = getParam("project");
+        buff = await db.collection("project").doc(ID).get()
+            .then((querySnapshot) => {
+                //console.log(querySnapshot.data()["projectmenberName"]);
+                let temp = querySnapshot.data()["projectmenberName"];
+                console.log(temp);
+                //buff = querySnapshot.data()["projectmenberName"];
+                //console.log(buff);
+                //return buff; //MemberのMがfirebaseで小文字になってる
+                //console.log(start);
+                //const docSnapshot = querysnapshot.docs;
+                //console.log(docSnapshot);
+                return temp;
+            })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        console.log(buff);
+        return buff; //MemberのMがfirebaseで小文字になってる
+    }
+
+    async function getProjectPeriodStart() {
+        let ID;
+        ID = getParam("project");
+        var buff;
+        buff = db.collection("project").doc(ID);
+        var start = buff.get().then((querySnapshot) => {
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let start = new Date(querySnapshot.data()["projectPeiriod"][0] / 10000, (querySnapshot.data()["projectPeiriod"][0] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][0] % 100));
+            //console.log(start);
+            return start;
+        })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        //console.log("取得S"+start);
+        return start;
+    }
+
+    async function getProjectPeriodFinish() {
+        let ID;
+        ID = getParam("project");
+        var buff;
+        buff = db.collection("project").doc(ID);
+        var finish = await buff.get().then((querySnapshot) => {
+            //console.log(querySnapshot.data()["projectPeiriod"]); 
+            let end = new Date(querySnapshot.data()["projectPeiriod"][1] / 10000, (querySnapshot.data()["projectPeiriod"][1] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][1] % 100));
+            //console.log(end);
+            return end;
+        })
+            .catch((error) => {
+                console.log("データの取得失敗");
+            })
+        //console.log("取得F"+finish);
+        return finish;
+    }
+
+    async function getProjectMemberSchedule(memberIndex) {
+        /*
+        var ID=getParam("project");
+        var data = [];
+        data=await db.collection("project").doc(ID).collection("projectMenberPeriod").where("memberIndex","==",memberIndex)
+        .get().then((querySnapshot) =>{
+            let snap= querySnapshot.forEach((doc) => {
+                let temp = doc.data()["projectSchedule"];
+                //projectSchedule.push(data.projectSchedule);
+                console.log(temp);
+                return temp;
+            });
+            console.log(snap);
+            return snap;
+        }).catch((error) => {
+            console.log("データの取得に失敗しました(${error})");
+        })
+        console.log(data);
+        return data;
+        */
+        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+        ];
+    }
+
 
     //ログイン画面へ遷移--------------------------------------------
     function onClickLogin() {
@@ -204,18 +293,9 @@
                 window.location = "login.html?project=" + projectId;
             }
         });
-    };
+    }
     //----------------------------------------------------------------
-    //+ボタンを押された時のログイン関係処理---------------------------------
-    $(".openbtn").click(function () {
-        if (!$(this).hasClass("active")) {
-            $(".hideArea").show();
-        }
-        else {
-            $(".hideArea").hide();
-        }
-        $(this).toggleClass("active");
-    });
+
     //URLをコピーする---------------------------------------------------
     copyUrl.value = location.href;
     function copyToClipboard() {
@@ -261,21 +341,21 @@
         }
     }
 /*
-                                                        function getProjectMembers(){
-                                                            let ID;
-                                                            let buff;
-                                                            ID = getParam("project");
-                                                            const docRef = db.ref("project/ID");
-                                                            let members;
-                                                            docRef.get().then((doc)=>{
-                                                                members = doc.data();
-                                                                console.log(members);
-                                                            }).catch((error)=>{
-                                                                console.log("データ取得失敗");
-                                                            })
-                                                            return members;
-                                                        }
-                                                        */
+                                                            function getProjectMembers(){
+                                                                let ID;
+                                                                let buff;
+                                                                ID = getParam("project");
+                                                                const docRef = db.ref("project/ID");
+                                                                let members;
+                                                                docRef.get().then((doc)=>{
+                                                                    members = doc.data();
+                                                                    console.log(members);
+                                                                }).catch((error)=>{
+                                                                    console.log("データ取得失敗");
+                                                                })
+                                                                return members;
+                                                            }
+                                                            */
     /*
     async function getProjectMembers() {
         let ID;
@@ -449,15 +529,17 @@
 
     }
 
-    table td.notHighlight {
+    td {
         min-width: 20px;
         height: 10px;
         text-align: center;
         vertical-align: middle;
-        background-color: #ccc;
         border: 1px solid #fff;
     }
 
+    table td.notHighlight {
+        background-color: #ccc;
+    }
 
     table td.highlighted {
         min-width: 20px;
@@ -470,18 +552,6 @@
         overflow-x: scroll;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
-    }
-
-    #modal-content {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
     }
 </style>
 

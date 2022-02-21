@@ -20,12 +20,14 @@ function createUser() {
     })
     .then(function(){
       console.log("登録成功!");
-      for(let i=0;i<60;i++){    
+      for(let i=0;i<60;i++){   
+        console.log(i); 
         db.collection("account").doc(userid).collection("myScheduleId").doc().set({
           date:-1,
           mySchedule:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         })
       }
+      //window.location="mypage.html";
     })
     .catch(function (error) { // 失敗した場合に実行される箇所
       console.error("Error adding document: ", error);
