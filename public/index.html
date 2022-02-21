@@ -42,6 +42,8 @@
 
       </div>
     </div>
+    <!-- テキスト表示用 -->
+    <p id="info"></p>
     
     <script>
       let db=firebase.firestore();
@@ -56,12 +58,12 @@
           else {
             window.location="login.html";
           }
-          });
-        }
+        });
+      }
         function loginDisplay() {
         //  logout.classList.remove('hide');
           inputarea.classList.add('hide');
-          let userName=getUserName(userid);
+          //let userName=getUserName(userid);
           info.textContent = "ログイン中です!";
           window.location="mypage.html";
         }
@@ -69,6 +71,7 @@
           if(!uid){
             uid=firebase.auth().currentUser.uid;
           }
+          console.log(uid);
           var userName=db.collection("account").doc(uid).get().data()["name"];
           return userName;
         }
@@ -84,7 +87,7 @@
           console.log(url);
           createProject(projectName,projectStartPeriod,projectFinishPeriod,projectId,url);
           console.log("成功");
-          window.location=url;
+          //window.location=url;
         }
 
         function getProjectId(){
@@ -110,14 +113,21 @@
             /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
             var startTime = transDateToInt(projectStartPeriod);
             var endTime = transDateToInt(projectEndPeriod);        
+            console.log(startTime);
+            console.log(endTime);
+            console.log(projectId);
             //データベースにドキュメントを更新.決まっていいない値はnullか0
             db.collection("project").doc(projectId).set({
                 URL: url,
-                menberId:  [null],
+                memberId:  [""],
                 projectName: projectName,
-                projectPeiriod: [startTime,endTime],
+                projectPeriod: [startTime,endTime],
                 projectDecisionName: 0,
-                projectmenberName: [null]
+                projectMemberName: [""]
+            })
+            .then(()=>{
+              console.log("seikou");
+              window.location=url;
             })
         }
 
