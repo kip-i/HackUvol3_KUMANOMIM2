@@ -27,13 +27,15 @@
 </body>
 
 <script src="firebaseCode.js"></script>
+<script src="firebaseCode_ryosuke.js"></script>
 <script src="firebaseFunctions.js"></script>
+
 <script>
     //----------------------------------------------------------------
     let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
-    var uid = null;
+    var userId = null;
     //--------------------------------
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
@@ -58,6 +60,8 @@
         }
         //それぞれのメンバーの行--------------
         var memberName = await getProjectMembers();
+        console.log(memberName);
+        console.log(memberName.length);
         for (let i = 0; i < memberName.length; i++) {
             var memberRow = await getProjectMemberSchedule(i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
@@ -80,65 +84,84 @@
         //認証状態の確認
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
-                userid = firebase.auth().currentUser.uid;
-            }
-        });
-        if (uid != null) {
-            //ログインした人のための処理----------
-            $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
-            var userSchedule = await getUserSchedule(uid);
-            var i = 0;
-            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
-                for (let k = 0; k < 144; k++) {
-                    if (userSchedule[i] == 0) {
-                        $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                    } else {
-                        $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
-                    }
-                    i++;
-                }
-            }
-        }
-        else {
-            //ログインしてない人のための処理-------
-            var i = 0;
-            $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
-            for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
-                for (let k = 0; k < 144; k++) {
-                    $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
-                    i++;
-                }
-            }
-        }
-        $("#dragTableArea").append(tableTag);
-        //テーブルのドラックした時の処理---------------------------------------
-        var isMouseDown = false;
-        $(".drag")
-            .mousedown(function () {
-                isMouseDown = true;
-                $(this).toggleClass("highlighted");
-                return false; // prevent text selection
-            })
-            .mouseover(function () {
-                if (isMouseDown) {
-                    $(this).toggleClass("highlighted");
-                }
-            });
-        $(document)
-            .mouseup(function () {
-                isMouseDown = false;
-            });
+                userId = firebase.auth().currentUser.uid;
+                console.log(userId);
 
-        //+ボタンを押された時のログイン関係処理---------------------------------
-        $(".openbtn").click(function () {
-            if (!$(this).hasClass("active")) {
-                $(".hideArea").show();
+            }
+            hantei();
+        });
+        function sleep(waitMsec) {
+            var startMsec = new Date();
+
+            // 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
+            while (new Date() - startMsec < waitMsec);
+        }
+
+        //sleep(10000);
+        console.log("ここ");
+        async function hantei() {
+            if (userId != null) {
+                console.log("ろぐいんした");
+                //ログインした人のための処理----------
+                $("<p>" + (await getUserName(userId)) + "<p>").appendTo(plusCellbox);
+                var userSchedule = await getUserSchedule(userId);
+                var i = 0;
+                for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                    for (let k = 0; k < 144; k++) {
+                        if (userSchedule[i] == 0) {
+                            $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                        } else {
+                            $("<td id=\"cell" + i + "\" class=\"highlighted drag\"></td>").appendTo(tableRow);
+                        }
+                        i++;
+                    }
+                }
             }
             else {
-                $(".hideArea").hide();
+                console.log("ろぐいんしてない");
+                //ログインしてない人のための処理-------
+                var i = 0;
+                $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
+                for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+                    for (let k = 0; k < 144; k++) {
+                        $("<td id=\"cell" + i + "\" class=\"drag\"></td>").appendTo(tableRow);
+                        i++;
+                    }
+                }
             }
-            $(this).toggleClass("active");
-        })
+
+            console.log("無視");
+            $("#dragTableArea").append(tableTag);
+            //テーブルのドラックした時の処理---------------------------------------
+            var isMouseDown = false;
+            $(".drag")
+                .mousedown(function () {
+                    isMouseDown = true;
+                    $(this).toggleClass("highlighted");
+                    return false; // prevent text selection
+                })
+                .mouseover(function () {
+                    if (isMouseDown) {
+                        $(this).toggleClass("highlighted");
+                    }
+                });
+            $(document)
+                .mouseup(function () {
+                    isMouseDown = false;
+                });
+
+            //+ボタンを押された時のログイン関係処理---------------------------------
+            $(".openbtn").click(function () {
+                if (!$(this).hasClass("active")) {
+                    $(".hideArea").show();
+                }
+                else {
+                    $(".hideArea").hide();
+                }
+                $(this).toggleClass("active");
+            })
+        }
+        console.log("作成完了");
     });
 
     async function getProjectPeriod() {
@@ -160,23 +183,34 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
     /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
-    function getUserSchedule(uid) {
-        /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
-        var projectId = getParam("project");
+    //async function getUserSchedule(userId){
+    /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
+    /*    var projectId = getParam("project");
         var period = [];
-        period = db.collection("project").doc(projectId).doc("projectPeriod").get();
+        period = db.collection("project").doc(projectId).get()
+        .then((querySnapshot)=>{
+            return querySnapshot.data()[""]
+        })
         /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
-        var projectPeriodMySchedule = [];
-        projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
-            .where("date", "<=", period[1]).get();
+    /*    var projectPeriodMySchedule = [];
+        projectPeriodMySchedule = db.collection("account").doc(userId).collection("myScheduleId").where("date", ">=", period[0])
+                                                                                            .where("date", "<=", period[1]).get();
         return projectPeriodMySchedule;
-    }
-
-    function getUserName(uid) {
-        if (!uid) {
-            uid = firebase.auth().currentUser.uid;
+    }*/
+    async function getUserName(userId) {
+        if (!userId) {
+            userId = firebase.auth().currentUser.uid;
         }
-        var userName = db.collection("account").doc(uid).get().data()["name"];
+        console.log(userId);
+        var userName = await db.collection("account").doc(userId).get()
+            .then((querySnapshot) => {
+                //console.log(querySnapshot);
+                let temp = querySnapshot.data()["name"];
+                //console.log(temp);
+                console.log(temp);
+                return temp;
+            })
+        console.log(userName);
         return userName;
     }
     /*
@@ -195,98 +229,99 @@
         return members;
     }
     */
-
-    async function getProjectMembers() {
-        let ID;
-        let buff;
-
-        ID = getParam("project");
-        buff = await db.collection("project").doc(ID).get()
-            .then((querySnapshot) => {
-                //console.log(querySnapshot.data()["projectmenberName"]);
-                let temp = querySnapshot.data()["projectmenberName"];
-                console.log(temp);
-                //buff = querySnapshot.data()["projectmenberName"];
-                //console.log(buff);
-                //return buff; //MemberのMがfirebaseで小文字になってる
+    /*
+        async function getProjectMembers() {
+            let ID;
+            let buff;
+    
+            ID = getParam("project");
+            buff = await db.collection("project").doc(ID).get()
+                .then((querySnapshot) => {
+                    //console.log(querySnapshot.data()["projectmenberName"]);
+                    let temp = querySnapshot.data()["projectmenberName"];
+                    console.log(temp);
+                    //buff = querySnapshot.data()["projectmenberName"];
+                    //console.log(buff);
+                    //return buff; //MemberのMがfirebaseで小文字になってる
+                    //console.log(start);
+                    //const docSnapshot = querysnapshot.docs;
+                    //console.log(docSnapshot);
+                    return temp;
+                })
+                .catch((error) => {
+                    console.log("データの取得失敗");
+                })
+            console.log(buff);
+            return buff; //MemberのMがfirebaseで小文字になってる
+        }
+    
+        async function getProjectPeriodStart() {
+            let ID;
+            ID = getParam("project");
+            var buff;
+            buff = db.collection("project").doc(ID);
+            var start = buff.get().then((querySnapshot) => {
+                //console.log(querySnapshot.data()["projectPeiriod"]); 
+                let start = new Date(querySnapshot.data()["projectPeiriod"][0] / 10000, (querySnapshot.data()["projectPeiriod"][0] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][0] % 100));
                 //console.log(start);
-                //const docSnapshot = querysnapshot.docs;
-                //console.log(docSnapshot);
-                return temp;
+                return start;
             })
-            .catch((error) => {
-                console.log("データの取得失敗");
-            })
-        console.log(buff);
-        return buff; //MemberのMがfirebaseで小文字になってる
-    }
-
-    async function getProjectPeriodStart() {
-        let ID;
-        ID = getParam("project");
-        var buff;
-        buff = db.collection("project").doc(ID);
-        var start = buff.get().then((querySnapshot) => {
-            //console.log(querySnapshot.data()["projectPeiriod"]); 
-            let start = new Date(querySnapshot.data()["projectPeiriod"][0] / 10000, (querySnapshot.data()["projectPeiriod"][0] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][0] % 100));
-            //console.log(start);
+                .catch((error) => {
+                    console.log("データの取得失敗");
+                })
+            //console.log("取得S"+start);
             return start;
-        })
-            .catch((error) => {
-                console.log("データの取得失敗");
+        }
+    
+        async function getProjectPeriodFinish() {
+            let ID;
+            ID = getParam("project");
+            var buff;
+            buff = db.collection("project").doc(ID);
+            var finish = await buff.get().then((querySnapshot) => {
+                //console.log(querySnapshot.data()["projectPeiriod"]); 
+                let end = new Date(querySnapshot.data()["projectPeiriod"][1] / 10000, (querySnapshot.data()["projectPeiriod"][1] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][1] % 100));
+                //console.log(end);
+                return end;
             })
-        //console.log("取得S"+start);
-        return start;
-    }
-
-    async function getProjectPeriodFinish() {
-        let ID;
-        ID = getParam("project");
-        var buff;
-        buff = db.collection("project").doc(ID);
-        var finish = await buff.get().then((querySnapshot) => {
-            //console.log(querySnapshot.data()["projectPeiriod"]); 
-            let end = new Date(querySnapshot.data()["projectPeiriod"][1] / 10000, (querySnapshot.data()["projectPeiriod"][1] % 10000) / 100, (querySnapshot.data()["projectPeiriod"][1] % 100));
-            //console.log(end);
-            return end;
-        })
-            .catch((error) => {
-                console.log("データの取得失敗");
+                .catch((error) => {
+                    console.log("データの取得失敗");
+                })
+            //console.log("取得F"+finish);
+            return finish;
+        }
+    
+        async function getProjectMemberSchedule(memberIndex) {
+            /*
+            var ID=getParam("project");
+            var data = [];
+            data=await db.collection("project").doc(ID).collection("projectMenberPeriod").where("memberIndex","==",memberIndex)
+            .get().then((querySnapshot) =>{
+                let snap= querySnapshot.forEach((doc) => {
+                    let temp = doc.data()["projectSchedule"];
+                    //projectSchedule.push(data.projectSchedule);
+                    console.log(temp);
+                    return temp;
+                });
+                console.log(snap);
+                return snap;
+            }).catch((error) => {
+                console.log("データの取得に失敗しました(${error})");
             })
-        //console.log("取得F"+finish);
-        return finish;
-    }
-
-    async function getProjectMemberSchedule(memberIndex) {
-        /*
-        var ID=getParam("project");
-        var data = [];
-        data=await db.collection("project").doc(ID).collection("projectMenberPeriod").where("memberIndex","==",memberIndex)
-        .get().then((querySnapshot) =>{
-            let snap= querySnapshot.forEach((doc) => {
-                let temp = doc.data()["projectSchedule"];
-                //projectSchedule.push(data.projectSchedule);
-                console.log(temp);
-                return temp;
-            });
-            console.log(snap);
-            return snap;
-        }).catch((error) => {
-            console.log("データの取得に失敗しました(${error})");
-        })
-        console.log(data);
-        return data;
-        */
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
-        ];
-    }
-
+            console.log(data);
+            return data;
+            */
+    /*        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+            ];
+        }
+    */
 
     //ログイン画面へ遷移--------------------------------------------
     function onClickLogin() {
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
-                userid = firebase.auth().currentUser.uid;
+                userId = firebase.auth().currentUser.uid;
+                console.log(userId);
             }
             else {
                 let projectId = getParam("project");
@@ -332,30 +367,30 @@
                 i++;
             }
         }
-        if (uid != null) {
+        if (userId != null) {
             //ログインした人のための処理----------
             setLoginMember(getProjectMembers().length + 1, scheduleArray);
         } else {
             //ログインしてない人のための処理-------
-            setJoinMember(getUserName(uid), scheduleArray);
+            setJoinMember(getUserName(userId), scheduleArray);
         }
     }
 /*
-                                                            function getProjectMembers(){
-                                                                let ID;
-                                                                let buff;
-                                                                ID = getParam("project");
-                                                                const docRef = db.ref("project/ID");
-                                                                let members;
-                                                                docRef.get().then((doc)=>{
-                                                                    members = doc.data();
-                                                                    console.log(members);
-                                                                }).catch((error)=>{
-                                                                    console.log("データ取得失敗");
-                                                                })
-                                                                return members;
-                                                            }
-                                                            */
+                                                                function getProjectMembers(){
+                                                                    let ID;
+                                                                    let buff;
+                                                                    ID = getParam("project");
+                                                                    const docRef = db.ref("project/ID");
+                                                                    let members;
+                                                                    docRef.get().then((doc)=>{
+                                                                        members = doc.data();
+                                                                        console.log(members);
+                                                                    }).catch((error)=>{
+                                                                        console.log("データ取得失敗");
+                                                                    })
+                                                                    return members;
+                                                                }
+                                                                */
     /*
     async function getProjectMembers() {
         let ID;

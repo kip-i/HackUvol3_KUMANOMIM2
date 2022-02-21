@@ -18,9 +18,9 @@ async function getProjectMembers(){
     ID = getParam("project");
     buff = await db.collection("project").doc(ID).get()
     .then((querySnapshot) => {
-         //console.log(querySnapshot.data()["projectmenberName"]);
-         let temp = querySnapshot.data()["projectmenberName"];
-         console.log(temp);
+         //console.log(querySnapshot);
+         let temp = querySnapshot.data()["projectMemberName"];
+         //console.log(temp);
         return temp;
     })
     .catch((error)=>{
@@ -37,7 +37,7 @@ async function getProjectPeriodStart(){
     buff = db.collection("project").doc(ID);
     var start = buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let start =new Date(querySnapshot.data()["projectPeiriod"][0]/10000,(querySnapshot.data()["projectPeiriod"][0]%10000)/100,(querySnapshot.data()["projectPeiriod"][0]%100));
+         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100,(querySnapshot.data()["projectPeriod"][0]%100));
          //console.log(start);
          return start;
     })
@@ -55,7 +55,7 @@ async function getProjectPeriodFinish(){
     buff = db.collection("project").doc(ID);
     var finish=await buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let end =new Date(querySnapshot.data()["projectPeiriod"][1]/10000,(querySnapshot.data()["projectPeiriod"][1]%10000)/100,(querySnapshot.data()["projectPeiriod"][1]%100));
+         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100,(querySnapshot.data()["projectPeriod"][1]%100));
          //console.log(end);
          return end;
     })

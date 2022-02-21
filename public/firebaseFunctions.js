@@ -21,15 +21,41 @@ function getParam(name, url) {
 //let db = firebase.firestore();
 
 /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
-function getUserSchedule(uid){
+async function getUserSchedule(uid){
     /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
     var projectId = getParam("project");
     var period = [];
-    period = db.collection("project").doc(projectId).doc("projectPeriod").get();
+    period = await db.collection("project").doc(projectId).get()
+    .then((querySnapshot)=>{
+        return querySnapshot.data()["projectPeriod"];
+    })
     /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
     var projectPeriodMySchedule = [];
-    projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
-                                                                                          .where("date", "<=", period[1]).get();
+    projectPeriodMySchedule = await db.collection("account").doc(uid).collection("myScheduleId")
+    .where("date", ">=", period[0]).where("date", "<=", period[1]).orderBy("date").get()
+    .then(async (querySnapshot)=>{
+        let kari = [];
+            kari = await querySnapshot.docs.map((doc) => {
+                data = doc.data()["mySchedule"];
+                let temp = [];
+                console.log("でーた取得中");
+                //値渡しで日程をコピー
+                for (var k = 0; k < 144; k++) {
+                    temp[k] = data[k];
+                }
+                return temp;
+            });
+
+            let returnSchedule = [];
+
+            for(let i = 0;i < kari.length;i++){
+                for(let k = 0;k < kari[i].length;k++){
+                    returnSchedule[i*144 + k] = kari[i][k];
+                }
+            }
+            return returnSchedule;
+    })
+
     return projectPeriodMySchedule;
 }
 
