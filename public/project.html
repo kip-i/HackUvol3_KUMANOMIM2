@@ -28,13 +28,15 @@
 </body>
 
 <script src="firebaseCode.js"></script>
+<script src="firebaseCode_ryosuke.js"></script>
 <script src="firebaseFunctions.js"></script>
+
 <script>
     //----------------------------------------------------------------
     let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
-    var uid = null;
+    var userId=null;
     //--------------------------------
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
@@ -59,6 +61,8 @@
         }
         //それぞれのメンバーの行--------------
         var memberName = await getProjectMembers();
+        console.log(memberName);
+        console.log(memberName.length);
         for (let i = 0; i < memberName.length; i++) {
             var memberRow = await getProjectMemberSchedule(i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
@@ -81,13 +85,27 @@
         //認証状態の確認
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
-                userid = firebase.auth().currentUser.uid;
+                userId = firebase.auth().currentUser.uid;
+                console.log(userId);
+                
             }
+            hantei();
         });
-        if (uid != null) {
+        function sleep(waitMsec) {
+            var startMsec = new Date();
+ 
+            // 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
+            while (new Date() - startMsec < waitMsec);
+        }
+ 
+        //sleep(10000);
+        console.log("ここ");
+        async function hantei(){
+        if (userId != null) {
+            console.log("ろぐいんした");
             //ログインした人のための処理----------
-            $("<p>" + getUserName(uid) + "<p>").appendTo(plusCellbox);
-            var userSchedule = await getUserSchedule(uid);
+            $("<p>" + (await getUserName(userId)) + "<p>").appendTo(plusCellbox);
+            var userSchedule = await getUserSchedule(userId);
             var i = 0;
             for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                 for (let k = 0; k < 144; k++) {
@@ -101,6 +119,7 @@
             }
         }
         else {
+            console.log("ろぐいんしてない");
             //ログインしてない人のための処理-------
             var i = 0;
             $("<div id=\"modalOpen\" class=\"openbtn\"><span></span><span></span></div>").appendTo(plusCellbox);
@@ -111,6 +130,8 @@
                 }
             }
         }
+    
+        console.log("無視");
         $("#dragTableArea").append(tableTag);
         //テーブルのドラックした時の処理---------------------------------------
         var isMouseDown = false;
@@ -140,6 +161,8 @@
             }
             $(this).toggleClass("active");
         })
+    }
+        console.log("作成完了");
     });
 
     async function getProjectPeriod() {
@@ -161,22 +184,34 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
     /*あるプロジェクトの期間のあるユーザーのマイスケジュールを返す*/
-    function getUserSchedule(uid){
+    //async function getUserSchedule(userId){
         /*あるプロジェクトIDのプロジェクトの開始日、終了日を取得する*/
-        var projectId = getParam("project");
+    /*    var projectId = getParam("project");
         var period = [];
-        period = db.collection("project").doc(projectId).doc("projectPeriod").get();
+        period = db.collection("project").doc(projectId).get()
+        .then((querySnapshot)=>{
+            return querySnapshot.data()[""]
+        })
         /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
-        var projectPeriodMySchedule = [];
-        projectPeriodMySchedule = db.collection("account").doc(uid).collection("myScheduleId").where("date", ">=", period[0])
+    /*    var projectPeriodMySchedule = [];
+        projectPeriodMySchedule = db.collection("account").doc(userId).collection("myScheduleId").where("date", ">=", period[0])
                                                                                             .where("date", "<=", period[1]).get();
         return projectPeriodMySchedule;
-    }
-    function getUserName(uid) {
-        if(!uid){
-            uid=firebase.auth().currentUser.uid;
+    }*/
+    async function getUserName(userId) {
+        if(!userId){
+            userId=firebase.auth().currentUser.uid;
         }
-        var userName=db.collection("account").doc(uid).get().data()["name"];
+        console.log(userId);
+        var userName= await db.collection("account").doc(userId).get()
+        .then((querySnapshot) => {
+         //console.log(querySnapshot);
+         let temp = querySnapshot.data()["name"];
+         //console.log(temp);
+         console.log(temp);
+         return temp;
+        })    
+        console.log(userName);
         return userName;
     }
     /*
@@ -195,7 +230,7 @@
         return members;
     }
     */
-
+/*
     async function getProjectMembers() {
         let ID;
         let buff;
@@ -277,16 +312,17 @@
         console.log(data);
         return data;
         */
-        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+/*        return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
         ];
     }
-
+*/
     
     //ログイン画面へ遷移--------------------------------------------
     function onClickLogin() {
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
-                userid = firebase.auth().currentUser.uid;
+                userId = firebase.auth().currentUser.uid;
+                console.log(userId);
             }
             else {
                 let projectId = getParam("project");
@@ -332,12 +368,12 @@
                 i++;
             }
         }
-        if (uid != null) {
+        if (userId != null) {
             //ログインした人のための処理----------
             setLoginMember(getProjectMembers().length + 1, scheduleArray);
         } else {
             //ログインしてない人のための処理-------
-            setJoinMember(getUserName(uid), scheduleArray);
+            setJoinMember(getUserName(userId), scheduleArray);
         }
     }
 
