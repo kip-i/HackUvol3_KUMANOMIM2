@@ -35,37 +35,44 @@
     let db = firebase.firestore();
     //ログインしてない人の名前------------
     var unLoginUserName;
-    var userId = null;
+    var userId=null;
+    var start;
+    var finish;
+    var memberName;
     //--------------------------------
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
-
+    
     document.addEventListener('DOMContentLoaded', async (event) => {
+        var week = ["日", "月", "火", "水", "木", "金", "土"];
         //開始日と終了日の取得----------------
-        var finish = await getProjectPeriodFinish();
-        var start = await getProjectPeriodStart();
+        finish = await getProjectPeriodFinish();
+        start = await getProjectPeriodStart();
         var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
         //1行目の作成-----------------------
         var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
-        $("<th rowspan=\"2\"></th>").appendTo(tableFirstRow);
+        $("<th class=\"doubleHeading\" rowspan=\"2\"></th>").appendTo(tableFirstRow);
         for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-            $("<th colspan=\"144\">" + i + "</th>").appendTo(tableFirstRow);
+            $("<th class=\"heading\" colspan=\"144\"><p>" +(i.getMonth() + 1) + "/" +i.getDate() + "(" + week[i.getDay()] +")"+"</p></th>").appendTo(tableFirstRow);
         }
         //2行目の作成-----------------------
         var tableSecondRow = $("<tr></tr>").appendTo(tableTag);
         for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
             for (let j = 0; j < 24; j++) {
-                $("<th colspan=\"6\" class=\"time\">" + j + ":" + "</th>").appendTo(tableSecondRow);
+                $("<th colspan=\"6\" class=\"time heading\"><p>" + j + ":" + "</p></th>").appendTo(tableSecondRow);
             }
         }
         //それぞれのメンバーの行--------------
-        var memberName = await getProjectMembers();
-
+        memberName = await getProjectMembers();
+        console.log(memberName);
+        console.log(memberName.length);
         for (let i = 0; i < memberName.length; i++) {
             var memberRow = await getProjectMemberSchedule(i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
-            $("<th>" + memberName[i] + "</th>").appendTo(tableRow);
+            $("<th class=\"heading\" >" + memberName[i] + "</th>").appendTo(tableRow);
             var count = 0;
+            console.log(start,finish);
+            console.log(memberRow[count]);
             for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                 for (let k = 0; k < 144; k++) {
                     if (memberRow[count] == 0) {
@@ -79,7 +86,7 @@
         }
         //新規欄-----------------------------------------------------------
         var tableRow = $("<tr></tr>").appendTo(tableTag);
-        var plusCellbox = $("<th></th>").appendTo(tableRow);
+        var plusCellbox = $("<th id=\"plusCellbox\" class=\"heading\"></th>").appendTo(tableRow);
         //認証状態の確認
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
@@ -149,20 +156,55 @@
                     isMouseDown = false;
                 });
 
-            //+ボタンを押された時のログイン関係処理---------------------------------
-            $(".openbtn").click(function () {
-                if (!$(this).hasClass("active")) {
-                    $(".hideArea").show();
-                }
-                else {
-                    $(".hideArea").hide();
-                }
-                $(this).toggleClass("active");
-            })
+        //+ボタンを押された時のログイン関係処理---------------------------------
+        $(".openbtn").click(function () {
+            if (!$(this).hasClass("active")) {
+                $(".hideArea").show();
+            }
+            else {
+                $(".hideArea").hide();
+            }
+            $(this).toggleClass("active");
+        })
+        
+        //ログインしていない人が名前を入力したとき-------------------------------
+        $("#unLoginUserName")[0].addEventListener("keypress", getUnLoginUserName);
+        function getUnLoginUserName(e) {
+            if (e.keyCode === 13) {
+                unLoginUserName = $("#unLoginUserName").val();
+                $(".hideArea").hide();
+                $("#modalOpen").hide();
+                $("<p>" + unLoginUserName + "</p>").appendTo($("#plusCellbox"));
+                //$("#plusCellbox").outerWidth();
+                $(".headiing")
+            }
         }
+    }
         console.log("作成完了");
     });
-
+    //----------------------------------------------------
+    function scheduleSave() {
+        var scheduleArray = [];
+        var i = 0;
+        for (var j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if ($("#cell" + i).hasClass("highlighted")) {
+                    scheduleArray.push(1);
+                } else {
+                    scheduleArray.push(0);
+                }
+                i++;
+            }
+        }
+        if (userId != null) {
+            //ログインした人のための処理----------
+            setLoginMember(memberName.length + 1, scheduleArray);
+        } else {
+            //ログインしてない人のための処理-------
+            setJoinMember(unLoginUserName, scheduleArray);
+        }
+    }
+    //--------------------------------------------------------
     async function getProjectPeriod() {
         var start = await getProjectPeriodStart();
         var finish = await getProjectPeriodFinish();
@@ -200,15 +242,18 @@
         if (!userId) {
             userId = firebase.auth().currentUser.uid;
         }
-        console.log(userId);
-        var userName = await db.collection("account").doc(userId).get()
+        else{
+            console.log(userId);
+            var userName= await db.collection("account").doc(userId).get()
             .then((querySnapshot) => {
-                //console.log(querySnapshot);
-                let temp = querySnapshot.data()["name"];
-                //console.log(temp);
-                console.log(temp);
-                return temp;
-            })
+            //console.log(querySnapshot);
+            let temp = querySnapshot.data()["name"];
+            //console.log(temp);
+            console.log(temp);
+            return temp;
+            })    
+        }
+        
         console.log(userName);
         return userName;
     }
@@ -342,15 +387,7 @@
         // コピーをお知らせする
         alert("コピーできました! : " + copyTarget.value);
     }
-    //ログインしていない人が名前を入力したとき-------------------------------
-    $("#unLoginUserName")[0].addEventListener("keypress", getUnLoginUserName);
-    function getUnLoginUserName(e) {
-        if (e.keyCode === 13) {
-            unLoginUserName = $("#unLoginUserName").val();
-            $("#modalOpen").hide();
-            $("<p>" + unLoginUserName + "</p>").appendTo(plusCellbox);
-        }
-    }
+
 
     //登録ボタンが押されたときの処理---------------------------------------
     function scheduleSave() {
@@ -475,22 +512,58 @@
         return [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
         ];
     }*/
+    //登録ボタンが押されたときの処理---------------------------------------
+    /*function scheduleSave() {
+        var scheduleArray = [];
+        var i = 0;
+        for (var j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
+            for (var k = 0; k < 144; k++) {
+                if ($("#cell" + i).hasClass("highlighted")) {
+                    scheduleArray.push(1);
+                } else {
+                    scheduleArray.push(0);
+                }
+                i++;
+            }
+        }
+        if (userId != null) {
+            //ログインした人のための処理----------
+            setLoginMember(memberName.length + 1, scheduleArray);
+        } else {
+            //ログインしてない人のための処理-------
+            setJoinMember(getUserName(userId), scheduleArray);
+        }
+    }
+*/
 </script>
 <style>
     .hideArea {
         display: none;
     }
 
-    .doubleHeading,
-    .heading {
+    .doubleHeading{
         position: sticky;
         top: 0;
         left: 0;
         background-color: #fff;
+        z-index: 2;
     }
-
+    .headingRow {
+        position: sticky;
+        top: 0;/**/
+        left: 0;
+        background-color: #fff;
+    }
+    .headingCol {
+        position: sticky;
+        top: 0;
+        left: 0;/**/
+        background-color: #fff;
+    }
+    
     .doubleHeading ::before,
-    .heading ::before {
+    .headingRow ::before,
+    .headingCol ::before {
         content: "";
         position: absolute;
         top: -1px;
@@ -499,14 +572,11 @@
         height: 100%;
         border: 1px solid #ccc;
     }
-
-    .doubleHeading {
-        z-index: 2;
-    }
-
-    .heading {
+    .headingRow,
+    .headingCol {
         z-index: 1;
     }
+
 
     .openbtn {
         position: relative;
@@ -559,7 +629,7 @@
     th {
         text-align: left;
         border: 0.5px solid black;
-        background-color: #ccc;
+        background-color: #fff;
         padding: 0 1em;
     }
 
@@ -586,6 +656,9 @@
         overflow-x: scroll;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
+    }
+    .time {
+        padding-left: 1em;
     }
 </style>
 

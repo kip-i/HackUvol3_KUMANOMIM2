@@ -28,11 +28,11 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
     //データベースにドキュメントを更新.決まっていいない値はnullか0
     db.collection("project").doc(projectId).set({
         URL: url,
-        memberId:  ["1"],
+        memberId:  [""],
         projectName: projectName,
         projectPeriod: [startTime,endTime],
         projectDecisionName: 0,
-        projectmemberName: ["1"]
+        projectmemberName: [""]
     })
 }
 
