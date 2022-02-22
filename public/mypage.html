@@ -103,17 +103,17 @@
     }
     */
     //Date型の日付をintの形に変換
-    function transDateToInt(date) {
+/*    function transDateToInt(date) {
 
         var dividDate = date.split("-", 3);
 
         /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
-        var intDate = parseInt(dividDate[0] * 10000) + parseInt(dividDate[1] * 100) + parseInt(dividDate[2]);
+/*        var intDate = parseInt(dividDate[0] * 10000) + parseInt(dividDate[1] * 100) + parseInt(dividDate[2]);
 
         return intDate;
     }
     /*my日程を保存する関数.小塚*/
-    function setMySchedule(uid, mySchedule) {
+/*    function setMySchedule(uid, mySchedule) {
 
         var today = new Date();     //今日の日付
         var scheduleDate;           //登録する日時をintの形で入れておく変数
@@ -152,7 +152,7 @@
     }
 
     /*my日程を取得する関数.小塚*/
-    async function getMySchedule(uid) {
+/*    async function getMySchedule(uid) {
 
         var today = new Date();     //今日の日付を取得
         var finalDay = new Date();
@@ -243,8 +243,9 @@
         console.log(scheduleArray.length);
         setMySchedule(userid, scheduleArray);
     }
-
+*/
 </script>
+<script src="firebaseCode.js"></script>
 <style>
     table td.drag {
         min-width: 30px;

@@ -113,10 +113,13 @@
             /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
             var startTime = transDateToInt(projectStartPeriod);
             var endTime = transDateToInt(projectEndPeriod);        
+            console.log(startTime);
+            console.log(endTime);
+            console.log(projectId);
             //データベースにドキュメントを更新.決まっていいない値はnullか0
             db.collection("project").doc(projectId).set({
                 URL: url,
-                menberId:  [""],
+                memberId:  [""],
                 projectName: projectName,
                 projectPeriod: [startTime,endTime],
                 projectDecisionName: 0,

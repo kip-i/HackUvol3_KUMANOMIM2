@@ -18,9 +18,9 @@ async function getProjectMembers(){
     ID = getParam("project");
     buff = await db.collection("project").doc(ID).get()
     .then((querySnapshot) => {
-         //console.log(querySnapshot.data()["projectmenberName"]);
-         let temp = querySnapshot.data()["projectmenberName"];
-         console.log(temp);
+         //console.log(querySnapshot);
+         let temp = querySnapshot.data()["projectMemberName"];
+         //console.log(temp);
         return temp;
     })
     .catch((error)=>{
@@ -37,7 +37,7 @@ async function getProjectPeriodStart(){
     buff = db.collection("project").doc(ID);
     var start = buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let start =new Date(querySnapshot.data()["projectPeiriod"][0]/10000,(querySnapshot.data()["projectPeiriod"][0]%10000)/100,(querySnapshot.data()["projectPeiriod"][0]%100));
+         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100,(querySnapshot.data()["projectPeriod"][0]%100));
          //console.log(start);
          return start;
     })
@@ -52,10 +52,11 @@ async function getProjectPeriodFinish(){
     let ID;
     ID = getParam("project");
     var buff;
+    console.log(ID);
     buff = db.collection("project").doc(ID);
     var finish=await buff.get().then((querySnapshot) => {
-         //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let end =new Date(querySnapshot.data()["projectPeiriod"][1]/10000,(querySnapshot.data()["projectPeiriod"][1]%10000)/100,(querySnapshot.data()["projectPeiriod"][1]%100));
+         //console.log(querySnapshot.data()["projectPeriod"]); 
+         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100,(querySnapshot.data()["projectPeriod"][1]%100));
          //console.log(end);
          return end;
     })
@@ -79,15 +80,20 @@ async function getProjectMemberSchedule(memberIndex){
         
         var buff = await querySnapshot.docs.map(doc=>{
             data = doc.data()["projectSchedule"];
+            //console.log(data);
             return data;
         })
-        console.log(buff);
+        //console.log(buff[0]);
         return buff;
         
     }).catch((error) => {
         console.log("データの取得に失敗しました(${error})");
     })
     //console.log(projectSchedule);
-    console.log(temp)
-    return temp;
+    if(temp.length==0){
+        console.log("空");
+        temp=[[null]];
+    }
+    console.log(temp);
+    return temp[0];
 }
