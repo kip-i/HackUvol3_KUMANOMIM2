@@ -30,6 +30,7 @@
 <script src="firebaseCode.js"></script>
 <script src="firebaseCode_ryosuke.js"></script>
 <script src="firebaseFunctions.js"></script>
+<script src="change.js"></script>
 
 <script>
     //----------------------------------------------------------------
@@ -40,6 +41,7 @@
     var start;
     var finish;
     var memberName;
+    var userSchedule;
     //--------------------------------
     //テーブル作成------------------------------------------------------
     //状況の取得------------------------
@@ -70,12 +72,13 @@
         console.log(memberName);
         console.log("memberName.length : " + memberName.length);
         for (let i = 0; i < memberName.length; i++) {
-            var memberRow = await getProjectMemberSchedule(i);
+            var memberSch = await getProjectMemberSchedule(i);
+            var memberRow=await adjustSchedule(memberSch,i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
             $("<th class=\"headingRow\" >" + memberName[i] + "</th>").appendTo(tableRow);
             var count = 0;
-            console.log(start, finish);
-            console.log(memberRow[count]);
+            console.log(start,finish);
+            console.log(memberRow);
             for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                 for (let k = 0; k < 144; k++) {
                     if (memberRow[count] == 0) {
@@ -208,7 +211,7 @@
         }
         if (userId != null) {
             //ログインした人のための処理----------
-            setLoginMember(num, scheduleArray);
+            setLoginMember(num, scheduleArray,userSchedule);
         } else {
             //ログインしてない人のための処理-------
             setJoinMember(num, unLoginUserName, scheduleArray);
