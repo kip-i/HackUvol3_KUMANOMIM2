@@ -16,7 +16,8 @@ function createUser() {
     db.collection("account").doc(userid).set({
       name:userName,
       mailadd:mailAddress,
-      pass:password
+      pass:password,
+      joinProject:[""]
     })
     .then(function(){
       console.log("登録成功!");

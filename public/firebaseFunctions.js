@@ -148,7 +148,7 @@ function setJoinMember(memIndex,memberName,newSchedule){
 }
 
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-async function setLoginMember(memIndex,schedule){
+async function setLoginMember(memIndex,projectSchedule,mySchedule){
     //var projectId = getParam("project");
     //var userId = null;
 
@@ -170,7 +170,7 @@ async function setLoginMember(memIndex,schedule){
     }).catch((error) => {
         console.log("データの取得に失敗しました(${error})");
     })
-
+    let schedule=await diffSchedule(userId,projectSchedule,mySchedule);
     setprojectData(userId,memIndex,memberName,schedule);
 
 
@@ -203,6 +203,11 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
     db.collection("project").doc(projectId).update({
         memberId: firebase.firestore.FieldValue.arrayUnion(userId),
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
+    })
+    .then(function(){
+        db.collection("account").doc(userId).update({
+            joinProject: firebase.firestore.FieldValue.arrayUnion(projectId)
+        })
     })
    .catch((error)=>{
        console.log("データの取得失敗");
