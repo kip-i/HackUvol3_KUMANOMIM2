@@ -103,9 +103,9 @@ async function getUserSchedule(userId){
 }
 */
 ////////////////////////////////////////////////
-function setJoinMember(memberName,newSchedule){
+function setJoinMember(memIndex,memberName,newSchedule){
     console.log("set");
-    setprojectData("","0",memberName,newSchedule);
+    setprojectData("",memIndex,memberName,newSchedule);
 
     /*
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
@@ -195,6 +195,11 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
     console.log("kokomade");
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
     //名前の配列を取得
+    var documentId;
+    if(memIndex==0){
+        documentId=db.collection("project").doc(projectId).collection("projectMemberPeriod").doc().id;
+    }
+    
     db.collection("project").doc(projectId).update({
         memberId: firebase.firestore.FieldValue.arrayUnion(userId),
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
@@ -206,7 +211,7 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
     db.collection("project").doc(projectId).collection("projectMemberPeriod").add({
         memberId: userId,
         projectSchedule:newSchedule,
-        memberIndex:memIndex-1
+        memberIndex:memIndex
     })
     .then(function() {
         console.log("newSchedule successfully written!");
@@ -214,4 +219,17 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
     .catch(function(error) {
         console.error("Error writing document(newScedule): ", error);
     });
+
+    if(memIndex==0){
+        db.collection("project").doc(projectId).update({
+            memberId: firebase.firestore.FieldValue.arrayRemove(""),
+            projectMemberName:firebase.firestore.FieldValue.arrayRemove("")
+        })
+       .catch((error)=>{
+           console.log("データの取得失敗");
+       })
+    
+        db.collection("project").doc(projectId).collection("projectMemberPeriod").doc(documentId).delete();
+        console.log("delete");
+    }
 }
