@@ -14,17 +14,43 @@
 </head>
 
 <body>
-    <!-- コピー対象要素とコピーボタン -->
-    <input id="copyUrl" type="url" readonly>
-    <button onclick="copyToClipboard()">URLをコピー</button>
+    <header>
+        <h1>
+            <a href="/" class="header-title">Finding Plan</a>
+            <div class="line"></div>
+        </h1>
+    </header>
+    <div class="content">
+        <!-- コピー対象要素とコピーボタン -->
 
-    <div id="dragTableArea"></div>
-    <div id="loginSelectArea" class="hideArea">
-        <button id="login" onclick="onClickLogin()">ログイン</button>
-        ログインしないで利用:
-        <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+        <button class="btnripple" onclick="copyToClipboard()">URLをコピー</button>
+        <br>
+        <br>
+        <div id="dragTableArea"></div>
+        <ul>
+            <ui>
+                <div class="hideArea">
+                    <br>
+                    <button id="login" class="btnripple" onclick="onClickLogin()">ログイン</button>
+                </div>
+            </ui>
+            <ui style="padding: 0 1em;">
+                <div class="hideArea">
+                    <p>ログインしないで利用:</p>
+                    <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+                </div>
+
+            </ui>
+            <ui>
+                <br>
+                <button id="scheduleSaveButton" class="btnripple" onclick="scheduleSave()"><span>保存</span></button>
+            </ui>
+        </ul>
+
+        <br>
+
     </div>
-    <button id="scheduleSaveButton" onclick="scheduleSave()">登録</button>
+
 </body>
 
 <script src="firebaseCode.js"></script>
@@ -56,7 +82,7 @@
         var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
         $("<th class=\"doubleHeading\" rowspan=\"2\"></th>").appendTo(tableFirstRow);
         for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-            $("<th class=\"headingCol\" colspan=\"144\"><p>" + (i.getMonth() + 1) + "/" + i.getDate() + "(" + week[i.getDay()] + ")" + "</p></th>").appendTo(tableFirstRow);
+            $("<th class=\"headingCol\" colspan=\"144\"><p><span>" + (i.getMonth() - 1) + "/" + i.getDate() + "(" + week[i.getDay()] + ")" + "</span></p></th>").appendTo(tableFirstRow);
         }
 
         //2行目の作成-----------------------
@@ -116,7 +142,9 @@
                 console.log("ろぐいんした");
                 //ログインした人のための処理----------
                 $("<p>" + (await getUserName(userId)) + "<p>").appendTo(plusCellbox);
-                var userSchedule = await getUserSchedule(userId);
+                console.log(userId);
+                userSchedule = await getUserSchedule(userId);
+                console.log(userSchedule);
                 var i = 0;
                 for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                     for (let k = 0; k < 144; k++) {
@@ -146,7 +174,7 @@
             console.log("無視");
             $("#dragTableArea").append(tableTag);
             //テーブルのサイズ調整----------------
-            $(".headingCol").css("left", plusCellbox.outerWidth() + "px");
+            $(".headingCol span").css("left", plusCellbox.outerWidth() + 10 + "px");
             //テーブルのドラックした時の処理---------------------------------------
             var isMouseDown = false;
             $(".drag")
@@ -212,7 +240,8 @@
         }
         if (userId != null) {
             //ログインした人のための処理----------
-            setLoginMember(num, scheduleArray, userSchedule);
+            console.log(userSchedule);
+            setLoginMember(userId, num, scheduleArray, userSchedule);
         } else {
             //ログインしてない人のための処理-------
             setJoinMember(num, unLoginUserName, scheduleArray);
@@ -390,17 +419,11 @@
     //----------------------------------------------------------------
 
     //URLをコピーする---------------------------------------------------
-    copyUrl.value = location.href;
     function copyToClipboard() {
-        // コピー対象をJavaScript上で変数として定義する
-        var copyTarget = $("#copyUrl")[0];
-        // コピー対象のテキストを選択する
-        copyTarget.select();
-        // 選択しているテキストをクリップボードにコピーする
-        document.execCommand("Copy");
-        // コピーをお知らせする
-        alert("コピーできました! : " + copyTarget.value);
+        var url = location.href;
+        navigator.clipboard.writeText(url);
     }
+
 
     //登録ボタンが押されたときの処理---------------------------------------
     /*function scheduleSave() {
@@ -427,6 +450,28 @@
 */
 </script>
 <style>
+    .header-title {
+        width: 100%;
+        padding: 20px 0 10px 0;
+        margin: 0 4%;
+        margin-bottom: 100px;
+        font-size: 40px;
+        border-bottom: 1px solid #aaa;
+        text-decoration: none;
+        color: rgb(240, 173, 96);
+    }
+
+    .line {
+        border-bottom: 1px solid #aaa;
+    }
+
+    .content {
+        margin: 0 auto;
+        padding: 0 2rem;
+        position: relative;
+        width: 68%;
+    }
+
     .hideArea {
         display: none;
     }
@@ -450,6 +495,13 @@
     .headingCol {
         position: sticky;
         top: 0;
+
+        background-color: #fff;
+    }
+
+    .headingCol span {
+        position: sticky;
+        top: 0;
         left: 0;
         /**/
         background-color: #fff;
@@ -464,7 +516,7 @@
         left: -1px;
         width: 100%;
         height: 100%;
-        border: 1px solid #ccc;
+        /*border: 1px solid #ccc;*/
     }
 
     .headingRow,
@@ -551,10 +603,59 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
         width: 92%;
+        border: 3px #666 solid;
+        border-radius: 15px;
     }
 
     .time {
         padding-left: 1em;
+    }
+
+    /* クリックしたら波紋が広がる */
+
+    .btnripple {
+        /*波紋の基点とするためrelativeを指定*/
+        position: relative;
+        /*はみ出す波紋を隠す*/
+        overflow: hidden;
+        /*ボタンの形状*/
+        text-decoration: none;
+        display: inline-block;
+        background: rgb(240, 173, 96);
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 25px;
+        outline: none;
+        font-size: 1em;
+    }
+
+    .btnripple::after {
+        content: "";
+        /*絶対配置で波紋位置を決める*/
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        /*波紋の形状*/
+        background: radial-gradient(circle, #fff 10%, transparent 10%) no-repeat 50%;
+        transform: scale(10, 10);
+        /*はじめは透過0に*/
+        opacity: 0;
+        /*アニメーションの設定*/
+        transition: transform 0.3s, opacity 1s;
+    }
+
+    /*クリックされたあとの形状の設定*/
+    .btnripple:active::after {
+        transform: scale(0, 0);
+        transition: 0s;
+        opacity: 0.3;
+    }
+
+    ul {
+        display: flex;
+
     }
 </style>
 
