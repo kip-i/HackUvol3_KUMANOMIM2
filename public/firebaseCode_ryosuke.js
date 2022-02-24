@@ -99,8 +99,6 @@ async function getProjectMemberSchedule(memberIndex){
 }
 
 async function getWeekSchedule(uid){
-
-
     var temp = await db.collection("account").doc(uid).get()
     .then((querySnapshot) => {
         var buff = await querySnapshot.docs.map(doc =>{
