@@ -73,11 +73,11 @@
         console.log("memberName.length : " + memberName.length);
         for (let i = 0; i < memberName.length; i++) {
             var memberSch = await getProjectMemberSchedule(i);
-            var memberRow=await adjustSchedule(memberSch,i);
+            var memberRow = await adjustSchedule(memberSch, i);
             var tableRow = $("<tr></tr>").appendTo(tableTag);
             $("<th class=\"headingRow\" >" + memberName[i] + "</th>").appendTo(tableRow);
             var count = 0;
-            console.log(start,finish);
+            console.log(start, finish);
             console.log(memberRow);
             for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                 for (let k = 0; k < 144; k++) {
@@ -185,7 +185,8 @@
                     $("#modalOpen").hide();
                     $("<p>" + unLoginUserName + "</p>").appendTo($("#plusCellbox"));
                     //$("#plusCellbox").outerWidth();
-                    $(".headiing")
+                    $(".headingCol").css("left", plusCellbox.outerWidth() + "px");
+                    $(".headiing");
                 }
             }
         }
@@ -211,7 +212,7 @@
         }
         if (userId != null) {
             //ログインした人のための処理----------
-            setLoginMember(num, scheduleArray,userSchedule);
+            setLoginMember(num, scheduleArray, userSchedule);
         } else {
             //ログインしてない人のための処理-------
             setJoinMember(num, unLoginUserName, scheduleArray);
