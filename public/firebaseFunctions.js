@@ -31,6 +31,7 @@ async function getUserSchedule(userId){
     })
     /*あるユーザーIDをもつユーザーのプロジェクトの期間のマイスケジュールを取得する*/
     var projectPeriodMySchedule = [];
+    console.log(userId);
     projectPeriodMySchedule = await db.collection("account").doc(userId).collection("myScheduleId")
     .where("date", ">=", period[0]).where("date", "<=", period[1]).orderBy("date").get()
     .then(async (querySnapshot)=>{
@@ -55,7 +56,7 @@ async function getUserSchedule(userId){
             }
             return returnSchedule;
     })
-
+    console.log(projectPeriodMySchedule);
     return projectPeriodMySchedule;
 }
 
@@ -148,7 +149,7 @@ function setJoinMember(memIndex,memberName,newSchedule){
 }
 
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-async function setLoginMember(memIndex,schedule){
+async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
     //var projectId = getParam("project");
     //var userId = null;
 
@@ -170,7 +171,8 @@ async function setLoginMember(memIndex,schedule){
     }).catch((error) => {
         console.log("データの取得に失敗しました(${error})");
     })
-
+    console.log(mySchedule);
+    let schedule=await diffSchedule(userId,projectSchedule,mySchedule);
     setprojectData(userId,memIndex,memberName,schedule);
 
 
@@ -203,6 +205,11 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
     db.collection("project").doc(projectId).update({
         memberId: firebase.firestore.FieldValue.arrayUnion(userId),
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
+    })
+    .then(function(){
+        db.collection("account").doc(userId).update({
+            joinProject: firebase.firestore.FieldValue.arrayUnion(projectId)
+        })
     })
    .catch((error)=>{
        console.log("データの取得失敗");

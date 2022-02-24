@@ -97,3 +97,31 @@ async function getProjectMemberSchedule(memberIndex){
     console.log(temp);
     return temp[0];
 }
+
+async function getWeekSchedule(uid){
+
+    var temp = await db.collection("account").doc(uid).get()
+    .then((querySnapshot) => {
+        var buff = querySnapshot.data()["week"];
+        return buff;
+    }).catch((error) => {
+        console.log("データの取得失敗(${error})");
+    })
+    if(temp.length==0){
+        console.log("空");
+        temp=[null];
+    }
+    console.log(temp);
+    return temp;
+}
+
+function setWeekSchedule(userId,weekSchedule){
+    console.log(weekSchedule);
+    db.collection("account").doc(userId).update({
+        week:weekSchedule
+    })
+}
+
+async function changeWeekSchedule(userId,weekSchedule){
+
+}

@@ -8,15 +8,24 @@ function createUser() {
   userName= document.getElementById('name').value;
   var mailAddress = document.getElementById('email').value;
   var password = document.getElementById('password').value;
+  var weekArray=[];
+  for(let i=0;i<7;i++){
+    for(let j=0;j<144;j++){
+      weekArray[i*144+j]=1;
+    }
+  }
   
   firebase.auth().createUserWithEmailAndPassword(mailAddress, password)
   .then(function(){  
     userid = firebase.auth().currentUser.uid;
     console.log(userid);
+    console.log(userName,mailAddress,password);
     db.collection("account").doc(userid).set({
       name:userName,
       mailadd:mailAddress,
-      pass:password
+      pass:password,
+      joinProject:[""],
+      week:weekArray
     })
     .then(function(){
       console.log("登録成功!");
@@ -30,7 +39,7 @@ function createUser() {
       setTimeout(function(){
         window.location="mypage.html";
       },
-        1000*10);
+        1000*5);
       
     })
     .catch(function (error) { // 失敗した場合に実行される箇所
