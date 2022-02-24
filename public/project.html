@@ -82,7 +82,7 @@
         var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
         $("<th class=\"doubleHeading\" rowspan=\"2\"></th>").appendTo(tableFirstRow);
         for (let i = new Date(start); i <= finish; i.setDate(i.getDate() + 1)) {
-            $("<th class=\"headingCol\" colspan=\"144\"><p><span>" + (i.getMonth() - 1) + "/" + i.getDate() + "(" + week[i.getDay()] + ")" + "</span></p></th>").appendTo(tableFirstRow);
+            $("<th class=\"headingCol\" colspan=\"144\"><p><span>" + (i.getMonth() + 1) + "/" + i.getDate() + "(" + week[i.getDay()] + ")" + "</span></p></th>").appendTo(tableFirstRow);
         }
 
         //2行目の作成-----------------------
