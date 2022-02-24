@@ -116,7 +116,9 @@
                 console.log("ろぐいんした");
                 //ログインした人のための処理----------
                 $("<p>" + (await getUserName(userId)) + "<p>").appendTo(plusCellbox);
-                var userSchedule = await getUserSchedule(userId);
+                console.log(userId);
+                userSchedule = await getUserSchedule(userId);
+                console.log(userSchedule);
                 var i = 0;
                 for (let j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
                     for (let k = 0; k < 144; k++) {
@@ -211,7 +213,8 @@
         }
         if (userId != null) {
             //ログインした人のための処理----------
-            setLoginMember(num, scheduleArray,userSchedule);
+            console.log(userSchedule);
+            setLoginMember(userId,num, scheduleArray,userSchedule);
         } else {
             //ログインしてない人のための処理-------
             setJoinMember(num, unLoginUserName, scheduleArray);

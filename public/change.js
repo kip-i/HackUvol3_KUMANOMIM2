@@ -140,6 +140,7 @@ async function diffSchedule(userId,newSchedule,mySchedule){
     })
     let start=period[0]-stringToday;
     let finish=period[1]-period[0];*/
+    console.log(mySchedule);
     let diffProjectSchedule=[];
     for(let i=0;i<mySchedule.length;i++){
         let diff=newSchedule[i]+mySchedule[i];
@@ -170,7 +171,11 @@ async function adjustSchedule(projectSchedule,memberIndex){
         })
         return id;
     })
-    let mySchedule=await getUserSchedule(userId[0]);
+    console.log(userId[memberIndex]);
+    if(userId[memberIndex]==undefined){
+        return projectSchedule;
+    }
+    let mySchedule=await getUserSchedule(userId[memberIndex]);
 /*    var projectId=getParam("project");
     let today=new Date();
     let stringToday = parseInt(today.getFullYear()*10000) + parseInt((today.getMonth() +1)*100) + parseInt(today.getDate());
