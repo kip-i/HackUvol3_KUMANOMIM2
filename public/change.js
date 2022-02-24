@@ -172,7 +172,7 @@ async function adjustSchedule(projectSchedule,memberIndex){
         return id;
     })
     console.log(userId[memberIndex]);
-    if(userId[memberIndex]==undefined){
+    if(userId[memberIndex]==undefined || userId[memberIndex]==""){
         return projectSchedule;
     }
     let mySchedule=await getUserSchedule(userId[memberIndex]);
