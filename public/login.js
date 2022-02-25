@@ -81,7 +81,7 @@ function login() {
       window.location="project.html?project="+projectId;
     }
     else{
-      //loginDisplay();
+      loginDisplay();
     }
   })
   .catch(function(error) {
