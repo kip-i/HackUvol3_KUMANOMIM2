@@ -51,7 +51,7 @@ async function getUserSchedule(userId){
 
             for(let i = 0;i < kari.length;i++){
                 for(let k = 0;k < kari[i].length;k++){
-                    returnSchedule[i*144 + k] = kari[i][k];
+                    returnSchedule[i*144 + k] = kari[i][k]%2;
                 }
             }
             return returnSchedule;
@@ -192,9 +192,9 @@ async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
 }
 
 
-async function setprojectData(userId,memIndex,memberName,newSchedule){
+async function setprojectData(userId,memberName,newSchedule){
     var projectId = getParam("project");
-    //var memIndex="";
+    var memIndex="";
     console.log("kokomade");
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
     //名前の配列を取得
@@ -204,10 +204,6 @@ async function setprojectData(userId,memIndex,memberName,newSchedule){
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
     })
     .then(function(){
-        //let member=await getProjectMembers();
-
-        //memIndex=member.length;
-
         db.collection("account").doc(userId).update({
             joinProject: firebase.firestore.FieldValue.arrayUnion(projectId)
         })
@@ -216,11 +212,14 @@ async function setprojectData(userId,memIndex,memberName,newSchedule){
        console.log("データの取得失敗");
    })
 
-   /*
+    let member=await getProjectMembers();
+    memIndex=member.length-1;
+    console.log(member);
     if (member[0] == "") {
         memIndex--;
     }
-    */
+    console.log(memIndex);
+    let documentId=db.collection("project").doc(projectId).collection("projectMemberPeriod").doc().id;
 
     db.collection("project").doc(projectId).collection("projectMemberPeriod").add({
         memberId: userId,
@@ -242,7 +241,6 @@ async function setprojectData(userId,memIndex,memberName,newSchedule){
        .catch((error)=>{
            console.log("データの取得失敗");
        })
-       let documentId=db.collection("project").doc(projectId).collection("projectMemberPeriod").doc().id;
         db.collection("project").doc(projectId).collection("projectMemberPeriod").doc(documentId).delete();
         console.log("delete");
     }

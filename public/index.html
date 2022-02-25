@@ -249,6 +249,13 @@
       console.log(projectName);
       console.log(projectStartPeriod);
       console.log(projectFinishPeriod);
+      let temp=new Date();
+      let today=new Date(temp.getFullYear(),temp.getMonth(),temp.getDate()).getTime();
+      let start=new Date(projectStartPeriod.split("-",3)).getTime();
+      let finish=new Date(projectFinishPeriod.split("-",3)).getTime();
+      console.log(today);
+      console.log(start);
+      console.log(finish);
       if (projectName == "") {
         alert("プロジェクト名を入力してください");
         return;
@@ -259,6 +266,14 @@
       }
       else if (projectFinishPeriod == "") {
         alert("プロジェクトの終了日を入力してください");
+        return;
+      }
+      else if(start < today){
+        alert("開始日には本日以降を選択してください");
+        return;
+      }
+      else if(start > finish){
+        alert("終了日は開始日以降を選択してください");
         return;
       }
 
