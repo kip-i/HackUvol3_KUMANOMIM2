@@ -13,6 +13,11 @@ function createUser() {
     return;
   }
   var weekArray=[];
+  console.log(userName);
+  if(userName==""){
+    alert("ユーザ名を入力してください");
+    return;
+  }
   for(let i=0;i<7;i++){
     for(let j=0;j<144;j++){
       weekArray[i*144+j]=1;

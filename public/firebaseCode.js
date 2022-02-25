@@ -42,6 +42,10 @@ function setMySchedule( uid, mySchedule){
 
     /*
     for(let k = 0;k < 60;k++){
+
+function setMySchedule( uid, weekSchedule,mySchedule){
+    console.log(mySchedule);
+    /*for(let k = 0;k < 60;k++){
       for(let l = 0; l < 144;l++){
         mySchedule[k*144 + l] = 0;
       }
@@ -67,17 +71,39 @@ function setMySchedule( uid, mySchedule){
             var index = 0;  //配列は全部つながっているので分ける時に使用するインデックス
             //ループして全部更新
             for(i = 0;i < 60;i++,index = index + 144){
-              
-              var stringDay = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-              scheduleDate = transDateToInt(stringDay);   //日付の指定
+                
+                //-------------------------------------------------------------------------
+                let day=parseInt(today.getDay());
+
+                for(let j=0;j<144;j++){
+                    let sum=mySchedule[i*144+j]+weekSchedule[day*144+j];
+                    if(sum==0){
+                        mySchedule[i*144+j]=0;
+                    }
+                    else if(sum==2){
+                        mySchedule[i*144+j]=1;
+                    }
+                    else if(sum==1){
+                        if(mySchedule[i*144+j]==0){
+                            mySchedule[i*144+j]=2;
+                        }
+                        else if(mySchedule[i*144+j]==1){
+                            mySchedule[i*144+j]=3;
+                        }
+                    }
+                }
+                //-------------------------------------------------------------------------
+
+                var stringDay = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+                scheduleDate = transDateToInt(stringDay);   //日付の指定
              
-              //データの保存
-              db.collection("account").doc(uid).collection("myScheduleId").doc(scheduleId[i]).set({
-                date: scheduleDate,
-                mySchedule: mySchedule.slice(index,index + 144)
-              })
+                //データの保存
+                db.collection("account").doc(uid).collection("myScheduleId").doc(scheduleId[i]).set({
+                    date: scheduleDate,
+                    mySchedule: mySchedule.slice(index,index + 144)
+                })
               
-              today.setDate(today.getDate() + 1);     //日付を1日進める
+                today.setDate(today.getDate() + 1);     //日付を1日進める
             }
         }).catch((error) => {
         console.log("データ取得失敗(${error})");
@@ -157,7 +183,12 @@ async function getMySchedule(uid) {
 
             for(let i = 0;i < kari.length;i++){
                 for(let k = 0;k < kari[i].length;k++){
-                    returnSchedule[i*144 + k] = kari[i][k];
+                    if(kari[i][k]%2==0){
+                        returnSchedule[i*144 + k] = 0;
+                    }
+                    else{
+                        returnSchedule[i*144 + k] = 1;
+                    }
                 }
             }
             return returnSchedule;
