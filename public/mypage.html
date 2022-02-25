@@ -60,7 +60,9 @@
     //var uid = "a";
     async function Load() {
         //(async function($){
+        console.log("a");
         var tableTag = $("<table id=\"dragTable\" cellpadding=\"0\" cellspacing=\"0\">");
+
         var tableFirstRow = $("<tr></tr>").appendTo(tableTag);
         $("<th class=\"doubleHeading\"></th>").appendTo(tableFirstRow);
         for (var i = 0; i < 24; i++) {
@@ -287,7 +289,7 @@
             }
         }
         console.log(scheduleArray.length);
-        setMySchedule(userid,weekUserSchedule, scheduleArray);
+        setMySchedule(userid, weekUserSchedule, scheduleArray);
         //changeMySchedule(userSchedule,scheduleArray,userid);
     }
     //週間テンプレート登録ボタンが押されたときの処理---------------------------------------

@@ -211,6 +211,7 @@
   <p id="info"></p>
 
   <script>
+    console.log("a");
     let db = firebase.firestore();
     let userid = "";
     //認証状態の確認
@@ -248,15 +249,15 @@
       console.log(projectName);
       console.log(projectStartPeriod);
       console.log(projectFinishPeriod);
-      if(projectName==""){
+      if (projectName == "") {
         alert("プロジェクト名を入力してください");
         return;
       }
-      else if(projectStartPeriod==""){
+      else if (projectStartPeriod == "") {
         alert("プロジェクトの開始日を入力してください");
         return;
       }
-      else if(projectFinishPeriod==""){
+      else if (projectFinishPeriod == "") {
         alert("プロジェクトの終了日を入力してください");
         return;
       }
