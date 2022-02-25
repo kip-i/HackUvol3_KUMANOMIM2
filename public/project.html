@@ -37,7 +37,10 @@
             <ui style="padding: 0 1em;">
                 <div class="hideArea">
                     <p>ログインしないで利用:</p>
-                    <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+                    <label class="effect">
+                        <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+                    </label>
+
                 </div>
 
             </ui>
@@ -656,6 +659,20 @@
     ul {
         display: flex;
 
+    }
+
+    input {
+        font-size: 1em;
+        margin: 0.5em;
+        padding: 0.6rem 1rem;
+        width: 100%
+    }
+
+    /*input欄のeffect*/
+    .effect :focus {
+        border: 1px solid rgb(240, 173, 96);
+        outline: none;
+        box-shadow: 0 0 5px 3px rgba(240, 173, 96, .5);
     }
 </style>
 
