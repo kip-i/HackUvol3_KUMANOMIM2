@@ -104,9 +104,9 @@ async function getUserSchedule(userId){
 }
 */
 ////////////////////////////////////////////////
-function setJoinMember(memberName,newSchedule){
+function setJoinMember(memIndex,memberName,newSchedule){
     console.log("set");
-    setprojectData("",memberName,newSchedule);
+    setprojectData("",memIndex,memberName,newSchedule);
 
     /*
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
@@ -149,7 +149,7 @@ function setJoinMember(memberName,newSchedule){
 }
 
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-async function setLoginMember(userId,projectSchedule,mySchedule){
+async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
     //var projectId = getParam("project");
     //var userId = null;
 
@@ -173,7 +173,7 @@ async function setLoginMember(userId,projectSchedule,mySchedule){
     })
     console.log(mySchedule);
     let schedule=await diffSchedule(userId,projectSchedule,mySchedule);
-    setprojectData(userId,memberName,schedule);
+    setprojectData(userId,memIndex,memberName,schedule);
 
 
     /*
@@ -192,9 +192,9 @@ async function setLoginMember(userId,projectSchedule,mySchedule){
 }
 
 
-function setprojectData(userId,memberName,newSchedule){
+async function setprojectData(userId,memIndex,memberName,newSchedule){
     var projectId = getParam("project");
-    var memIndex="";
+    //var memIndex="";
     console.log("kokomade");
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
     //名前の配列を取得
@@ -204,7 +204,9 @@ function setprojectData(userId,memberName,newSchedule){
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
     })
     .then(function(){
-        memIndex=memberName.length;
+        //let member=await getProjectMembers();
+
+        //memIndex=member.length;
 
         db.collection("account").doc(userId).update({
             joinProject: firebase.firestore.FieldValue.arrayUnion(projectId)
@@ -214,10 +216,12 @@ function setprojectData(userId,memberName,newSchedule){
        console.log("データの取得失敗");
    })
 
-    if (memberName[0] == "") {
+   /*
+    if (member[0] == "") {
         memIndex--;
     }
-    
+    */
+
     db.collection("project").doc(projectId).collection("projectMemberPeriod").add({
         memberId: userId,
         projectSchedule:newSchedule,

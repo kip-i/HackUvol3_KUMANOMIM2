@@ -38,12 +38,10 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
 }
 
 /*my日程を保存する関数.小塚*/
-function setMySchedule( uid, mySchedule){
+function setMySchedule( uid, weekSchedule,mySchedule){
 
     /*
     for(let k = 0;k < 60;k++){
-
-function setMySchedule( uid, weekSchedule,mySchedule){
     console.log(mySchedule);
     /*for(let k = 0;k < 60;k++){
       for(let l = 0; l < 144;l++){
@@ -81,7 +79,7 @@ function setMySchedule( uid, weekSchedule,mySchedule){
                         mySchedule[i*144+j]=0;
                     }
                     else if(sum==2){
-                            mySchedule[i*144+j]=1;
+                        mySchedule[i*144+j]=1;
                     }
                     else if(sum==1){
                         if(mySchedule[i*144+j]==0){
@@ -183,7 +181,7 @@ async function getMySchedule(uid) {
 
             for(let i = 0;i < kari.length;i++){
                 for(let k = 0;k < kari[i].length;k++){
-                    if(kari[i][k]%2==0){
+                    if((kari[i][k])%2==0){
                         returnSchedule[i*144 + k] = 0;
                     }
                     else{
