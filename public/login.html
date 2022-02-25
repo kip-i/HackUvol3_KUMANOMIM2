@@ -1,50 +1,178 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    
+
+<head>
+  <meta charset="utf-8" />
+
   <!--  -->
   <script src="/__/firebase/6.2.0/firebase-app.js"></script>
   <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
   <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
   <script src="/__/firebase/init.js"></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
-    <title>ログインページ</title>
-    <link rel="stylesheet" href="login.css" />
-    <style>
-      .header-title {
-        padding: 10px;
-        margin-bottom: 100px;
-        font-size: 18px;
-        border-bottom: 1px solid #aaa;
-      }
-      .hide {
-        display: none;
-      }
-      #info {
-        text-align: center;
-        font-size: 4em;
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <h1 class="header-title">ログインページ</h1>
-    
-    <div class="container">
-      <div id="inputarea">
-        <input id="name" type="name" placeholder="ユーザ名を入力" required/>
-        <input id="email" type="email" placeholder="メールアドレスを入力" required/>
-        <input id="password" type="password" placeholder="パスワードを入力" required/>
-        <button id="login" onclick="login()">ログイン</button>
-        <button id="newuser" onclick="createUser()">新規登録</button>
-      </div>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>ログイン-Finding Plan</title>
+  <style>
+    .header-title {
+      width: 100%;
+      padding: 20px 0 10px 0;
+      margin: 0 4%;
+      margin-bottom: 100px;
+      font-size: 40px;
+      border-bottom: 1px solid #aaa;
+      text-decoration: none;
+      color: rgb(240, 173, 96);
+    }
+
+    .line {
+      border-bottom: 1px solid #aaa;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    #info {
+      text-align: center;
+      font-size: 4em;
+      font-weight: bold;
+    }
+
+    .content {
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      width: 68%;
+
+    }
+
+    /* クリックしたら波紋が広がる */
+    .btnripple {
+      /*波紋の基点とするためrelativeを指定*/
+      position: relative;
+      /*はみ出す波紋を隠す*/
+      overflow: hidden;
+      /*ボタンの形状*/
+      text-decoration: none;
+      display: inline-block;
+      background: rgb(240, 173, 96);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 25px;
+      outline: none;
+      font-size: 1em;
+    }
+
+    .btnripple::after {
+      content: "";
+      /*絶対配置で波紋位置を決める*/
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      /*波紋の形状*/
+      background: radial-gradient(circle, #fff 10%, transparent 10%) no-repeat 50%;
+      transform: scale(10, 10);
+      /*はじめは透過0に*/
+      opacity: 0;
+      /*アニメーションの設定*/
+      transition: transform 0.3s, opacity 1s;
+    }
+
+    /*クリックされたあとの形状の設定*/
+    .btnripple:active::after {
+      transform: scale(0, 0);
+      transition: 0s;
+      opacity: 0.3;
+    }
+
+    input {
+      font-size: 1em;
+      margin: 0.5em;
+
+      padding: 0.6rem 1rem;
+      width: 100%
+    }
+
+    /*input欄のeffect*/
+    .effect :focus {
+      border: 1px solid rgb(240, 173, 96);
+      outline: none;
+      box-shadow: 0 0 5px 3px rgba(240, 173, 96, .5);
+    }
+
+    #inputarea {
+      text-align: center;
+    }
+
+    table {
+      margin: 0 auto;
+      transform: translateX(-3em);
+    }
+
+    td {
+      height: 6em;
+    }
+
+    .text {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>
+      <a href="/" class="header-title">Finding Plan</a>
+      <div class="line"></div>
+    </h1>
+  </header>
+
+  <div class="content">
+    <div id="inputarea">
+      <table>
+        <tr class="effect">
+          <td class="text">
+            <p>ユーザ名 : </p>
+          </td>
+          <td><input id="name" type="name" required /></td>
+        </tr>
+        <tr class="effect">
+          <td class="text">
+            <p>メールアドレス : </p>
+          </td>
+          <td>
+            <input id="email" type="email" placeholder="〇〇＠〇〇.〇〇" required />
+          </td>
+        </tr>
+        <tr class="effect">
+          <td class="text">
+            <p>パスワード : </p>
+          </td>
+          <td>
+            <input id="password" type="password" placeholder="6文字以上" required />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <button id="login" class="btnripple" onclick="login()">ログイン</button>
+          </td>
+          <td>
+            <button id="newuser" class="btnripple" onclick="createUser()">新規登録</button>
+          </td>
+        </tr>
+      </table>
     </div>
-    
-    <!-- テキスト表示用 -->
-    <p id="info"></p>
-    
-    <script src="login.js"></script>
-  </body>
+  </div>
+
+  <!-- テキスト表示用 -->
+  <p id="info"></p>
+
+  <script src="login.js"></script>
+  <script>
+    console.log("a");
+  </script>
+</body>
+
 </html>
