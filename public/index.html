@@ -11,7 +11,7 @@
   <script src="/__/firebase/init.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <title>ホームページ</title>
+  <title>ホーム-Finding Plan</title>
   <!--<link rel="stylesheet" href="login.css" />-->
   <style>
     .header-title {
@@ -88,7 +88,6 @@
     }
 
     /* クリックしたら波紋が広がる */
-
     .btnripple {
       /*波紋の基点とするためrelativeを指定*/
       position: relative;
@@ -132,6 +131,8 @@
     input {
       font-size: 1em;
       margin: 0.5em;
+      padding: 0.6rem 1rem;
+      width: 100%
     }
 
     /*input欄のeffect*/
@@ -139,6 +140,23 @@
       border: 1px solid rgb(240, 173, 96);
       outline: none;
       box-shadow: 0 0 5px 3px rgba(240, 173, 96, .5);
+    }
+
+    #inputarea {
+      text-align: center;
+    }
+
+    table {
+      margin: 0 auto;
+      transform: translateX(-3em);
+    }
+
+    td {
+      height: 6em;
+    }
+
+    .text {
+      text-align: right;
     }
   </style>
 </head>
@@ -153,25 +171,47 @@
 
   <div class="content">
     <div id="inputarea">
-      <button id="mypage" class="mypageBtn" onclick="mypageClick()">Myページ へ</button>
-      <br><br>
-      <label class="effect">
-        <input id="project-name" type="text" placeholder="プロジェクト名">
-      </label>
-      <label class="effect">
-        <p>プロジェクト開始: <input id="project-start" type="date"></p>
-      </label>
-      <label class="effect">
-        <p>プロジェクト終了: <input id="project-finish" type="date"></p>
-      </label>
-
-      <button id="project-make" class="btnripple" onclick="forProject()"> プロジェクトを作成 </button>
+      <table>
+        <tr class="effect">
+          <td colspan="2">
+            <button id="mypage" class="mypageBtn" onclick="mypageClick()">Myページ へ</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="text">
+            <p>プロジェクト名 : </p>
+          </td>
+          <td>
+            <input id="project-name" type="text">
+          </td>
+        </tr>
+        <tr class="effect">
+          <td class="text">
+            <p>プロジェクト開始 : </p>
+          </td>
+          <td>
+            <input id="project-start" type="date">
+          </td>
+        </tr>
+        <tr class="effect">
+          <td class="text">
+            <p>プロジェクト終了 : </p>
+          </td>
+          <td><input id="project-finish" type="date"></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <button id="project-make" class="btnripple" onclick="forProject()"> プロジェクトを作成 </button>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
   <!-- テキスト表示用 -->
   <p id="info"></p>
 
   <script>
+    console.log("a");
     let db = firebase.firestore();
     let userid = "";
     //認証状態の確認
@@ -209,15 +249,15 @@
       console.log(projectName);
       console.log(projectStartPeriod);
       console.log(projectFinishPeriod);
-      if(projectName==""){
+      if (projectName == "") {
         alert("プロジェクト名を入力してください");
         return;
       }
-      else if(projectStartPeriod==""){
+      else if (projectStartPeriod == "") {
         alert("プロジェクトの開始日を入力してください");
         return;
       }
-      else if(projectFinishPeriod==""){
+      else if (projectFinishPeriod == "") {
         alert("プロジェクトの終了日を入力してください");
         return;
       }

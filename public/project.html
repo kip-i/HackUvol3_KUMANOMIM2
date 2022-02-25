@@ -9,7 +9,7 @@
     <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
     <script src="/__/firebase/init.js"></script>
 
-    <title></title>
+    <title>プロジェクト-Finding Plan</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 
@@ -37,7 +37,10 @@
             <ui style="padding: 0 1em;">
                 <div class="hideArea">
                     <p>ログインしないで利用:</p>
-                    <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+                    <label class="effect">
+                        <input id="unLoginUserName" type="text" placeholder="名前を入力してください." style="width: 12em;">
+                    </label>
+
                 </div>
 
             </ui>
@@ -222,6 +225,7 @@
     });
     //----------------------------------------------------
     function scheduleSave() {
+        console.log("a");
         var scheduleArray = [];
         var i = 0;
         for (var j = new Date(start); j <= finish; j.setDate(j.getDate() + 1)) {
@@ -656,6 +660,20 @@
     ul {
         display: flex;
 
+    }
+
+    input {
+        font-size: 1em;
+        margin: 0.5em;
+        padding: 0.6rem 1rem;
+        width: 100%
+    }
+
+    /*input欄のeffect*/
+    .effect :focus {
+        border: 1px solid rgb(240, 173, 96);
+        outline: none;
+        box-shadow: 0 0 5px 3px rgba(240, 173, 96, .5);
     }
 </style>
 
