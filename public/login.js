@@ -8,6 +8,10 @@ function createUser() {
   userName= document.getElementById('name').value;
   var mailAddress = document.getElementById('email').value;
   var password = document.getElementById('password').value;
+  if(userName==""){
+    alert("ユーザ名を入力してください");
+    return;
+  }
   var weekArray=[];
   console.log(userName);
   if(userName==""){
@@ -66,6 +70,7 @@ function login() {
     alert("ユーザ名を入力してください");
     return;
   }
+  
   firebase.auth().signInWithEmailAndPassword(mailAddress, password)
   .then(function(){
     userid = firebase.auth().currentUser.uid;

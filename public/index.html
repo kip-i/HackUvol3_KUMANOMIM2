@@ -12,12 +12,20 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>ホームページ</title>
-  <link rel="stylesheet" href="login.css" />
+  <!--<link rel="stylesheet" href="login.css" />-->
   <style>
     .header-title {
-      padding: 10px;
+      width: 100%;
+      padding: 20px 0 10px 0;
+      margin: 0 4%;
       margin-bottom: 100px;
-      font-size: 18px;
+      font-size: 40px;
+      border-bottom: 1px solid #aaa;
+      text-decoration: none;
+      color: rgb(240, 173, 96);
+    }
+
+    .line {
       border-bottom: 1px solid #aaa;
     }
 
@@ -30,20 +38,134 @@
       font-size: 4em;
       font-weight: bold;
     }
+
+    .content {
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      width: 68%;
+    }
+
+    .mypageBtn {
+      /*矢印の基点とするためrelativeを指定*/
+      position: relative;
+      /*ボタンの形状*/
+      text-decoration: none;
+      display: inline-block;
+      font-size: 1em;
+      background: rgb(240, 173, 96);
+      color: #fff;
+      padding: 10px 40px 10px 30px;
+
+      border-radius: 25px;
+      text-align: center;
+      outline: none;
+      /*アニメーションの指定*/
+      transition: ease .2s;
+
+    }
+
+    /* 矢印が右に移動 */
+    .mypageBtn::after {
+      content: '';
+      /*絶対配置で矢印の位置を決める*/
+      position: absolute;
+      top: 42%;
+      right: 23px;
+      /*矢印の形状*/
+      width: 5px;
+      height: 5px;
+      border-top: 2px solid #fff;
+      border-right: 2px solid #fff;
+      transform: rotate(45deg);
+      /*アニメーションの指定*/
+      transition: all .3s;
+    }
+
+    /*hoverした際の移動*/
+    .mypageBtn:hover::after {
+      right: 13px;
+    }
+
+    /* クリックしたら波紋が広がる */
+
+    .btnripple {
+      /*波紋の基点とするためrelativeを指定*/
+      position: relative;
+      /*はみ出す波紋を隠す*/
+      overflow: hidden;
+      /*ボタンの形状*/
+      text-decoration: none;
+      display: inline-block;
+      background: rgb(240, 173, 96);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 25px;
+      outline: none;
+      font-size: 1em;
+    }
+
+    .btnripple::after {
+      content: "";
+      /*絶対配置で波紋位置を決める*/
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      /*波紋の形状*/
+      background: radial-gradient(circle, #fff 10%, transparent 10%) no-repeat 50%;
+      transform: scale(10, 10);
+      /*はじめは透過0に*/
+      opacity: 0;
+      /*アニメーションの設定*/
+      transition: transform 0.3s, opacity 1s;
+    }
+
+    /*クリックされたあとの形状の設定*/
+    .btnripple:active::after {
+      transform: scale(0, 0);
+      transition: 0s;
+      opacity: 0.3;
+    }
+
+    input {
+      font-size: 1em;
+      margin: 0.5em;
+    }
+
+    /*input欄のeffect*/
+    .effect :focus {
+      border: 1px solid rgb(240, 173, 96);
+      outline: none;
+      box-shadow: 0 0 5px 3px rgba(240, 173, 96, .5);
+    }
   </style>
 </head>
 
 <body>
-  <h1 class="header-title">ホームページ</h1>
+  <header>
+    <h1>
+      <a href="/" class="header-title">Finding Plan</a>
+      <div class="line"></div>
+    </h1>
+  </header>
 
-  <div class="container">
+  <div class="content">
     <div id="inputarea">
-      <button id="mypage" onclick="mypageClick()">Myページ へ</button><br><br>
-      <input id="project-name" type="text" placeholder="プロジェクト名">
-      <p>プロジェクト開始: <input id="project-start" type="date"></p>
-      <p>プロジェクト終了: <input id="project-finish" type="date"></p>
-      <button id="project-make" onclick="forProject()"> プロジェクトを作成 </button>
+      <button id="mypage" class="mypageBtn" onclick="mypageClick()">Myページ へ</button>
+      <br><br>
+      <label class="effect">
+        <input id="project-name" type="text" placeholder="プロジェクト名">
+      </label>
+      <label class="effect">
+        <p>プロジェクト開始: <input id="project-start" type="date"></p>
+      </label>
+      <label class="effect">
+        <p>プロジェクト終了: <input id="project-finish" type="date"></p>
+      </label>
 
+      <button id="project-make" class="btnripple" onclick="forProject()"> プロジェクトを作成 </button>
     </div>
   </div>
   <!-- テキスト表示用 -->
