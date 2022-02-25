@@ -37,7 +37,7 @@ async function getProjectPeriodStart(){
     buff = db.collection("project").doc(ID);
     var start = buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100,(querySnapshot.data()["projectPeriod"][0]%100));
+         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100-1,(querySnapshot.data()["projectPeriod"][0]%100));
          //console.log(start);
          return start;
     })
@@ -56,7 +56,7 @@ async function getProjectPeriodFinish(){
     buff = db.collection("project").doc(ID);
     var finish=await buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeriod"]); 
-         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100,(querySnapshot.data()["projectPeriod"][1]%100));
+         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100-1,(querySnapshot.data()["projectPeriod"][1]%100));
          //console.log(end);
          return end;
     })
