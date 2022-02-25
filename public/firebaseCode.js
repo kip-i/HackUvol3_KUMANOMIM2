@@ -21,6 +21,7 @@ function transDateToInt(date){
 *projectEndPeriod       :Date
 */
 function createProject( projectName, projectStartPeriod, projectEndPeriod,projectId,url){
+
     /*日時をyyyymmdd(y:年,m:月,d:日)の形に変換*/
     var startTime = transDateToInt(projectStartPeriod);
     var endTime = transDateToInt(projectEndPeriod);
@@ -30,7 +31,7 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
         URL: url,
         memberId:  [""],
         projectName: projectName,
-        projectPeriod: [startTime,endTime],
+        projectPeiriod: [startTime,endTime],
         projectDecisionName: 0,
         projectmemberName: [""]
     })
@@ -38,18 +39,20 @@ function createProject( projectName, projectStartPeriod, projectEndPeriod,projec
 
 /*my日程を保存する関数.小塚*/
 function setMySchedule( uid, mySchedule){
-    console.log(mySchedule);
-    /*for(let k = 0;k < 60;k++){
+
+    /*
+    for(let k = 0;k < 60;k++){
       for(let l = 0; l < 144;l++){
         mySchedule[k*144 + l] = 0;
       }
-    }*/
+    }
+    */
+
     var today = new Date();     //今日の日付
     var scheduleDate;           //登録する日時をintの形で入れておく変数
     var scheduleId = [];        //ドキュメントのIDを入れておく配列
     var i = 0;
-    console.log(mySchedule);
-
+   
     //ドキュメントのIDをすべて取得
     db.collection("account").doc(uid).collection("myScheduleId").orderBy("date").get()
     .then(
