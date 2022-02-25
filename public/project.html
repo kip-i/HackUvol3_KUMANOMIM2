@@ -22,9 +22,11 @@
     </header>
     <div class="content">
         <!-- コピー対象要素とコピーボタン -->
-
+        <div>
+        <p id="innerName" style="font-size: 40px;padding:0 0;margin:5px 0;"></p>
         <button class="btnripple" onclick="copyToClipboard()">URLをコピー</button>
-        <br>
+        </div>
+        
         <br>
         <div id="dragTableArea"></div>
         <ul>
@@ -76,6 +78,10 @@
     //状況の取得------------------------
 
     document.addEventListener('DOMContentLoaded', async (event) => {
+        let projectName=await getProjectName();
+        console.log(projectName);
+        innerName.innerHTML=projectName;
+
         var week = ["日", "月", "火", "水", "木", "金", "土"];
         //開始日と終了日の取得----------------
         finish = await getProjectPeriodFinish();
@@ -456,7 +462,7 @@
         margin: 0 4%;
         margin-bottom: 100px;
         font-size: 40px;
-        border-bottom: 1px solid #aaa;
+        /*border-bottom: 1px solid #aaa;*/
         text-decoration: none;
         color: rgb(240, 173, 96);
     }
