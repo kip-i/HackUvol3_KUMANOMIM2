@@ -26,6 +26,9 @@ function createUser() {
   
   firebase.auth().createUserWithEmailAndPassword(mailAddress, password)
   .then(function(){  
+    inputarea.classList.add('hide');
+    info.textContent = "アカウント作成中です!";
+
     userid = firebase.auth().currentUser.uid;
     console.log(userid);
     console.log(userName,mailAddress,password);
@@ -38,6 +41,7 @@ function createUser() {
     })
     .then(function(){
       console.log("登録成功!");
+     
       for(let i=0;i<60;i++){   
         console.log(i); 
         db.collection("account").doc(userid).collection("myScheduleId").doc().set({
@@ -47,8 +51,7 @@ function createUser() {
       }
       setTimeout(function(){
         window.location="mypage.html";
-      },
-        1000*5);
+      },  1000*2);
       
     })
     .catch(function (error) { // 失敗した場合に実行される箇所
