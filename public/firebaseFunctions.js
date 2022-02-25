@@ -104,9 +104,9 @@ async function getUserSchedule(userId){
 }
 */
 ////////////////////////////////////////////////
-function setJoinMember(memberName,newSchedule){
+function setJoinMember(memIndex,memberName,newSchedule){
     console.log("set");
-    setprojectData("",memberName,newSchedule);
+    setprojectData("",memIndex,memberName,newSchedule);
 
     /*
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
@@ -149,7 +149,7 @@ function setJoinMember(memberName,newSchedule){
 }
 
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-async function setLoginMember(userId,projectSchedule,mySchedule){
+async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
     //var projectId = getParam("project");
     //var userId = null;
 
@@ -173,7 +173,7 @@ async function setLoginMember(userId,projectSchedule,mySchedule){
     })
     console.log(mySchedule);
     let schedule=await diffSchedule(userId,projectSchedule,mySchedule);
-    setprojectData(userId,memberName,schedule);
+    setprojectData(userId,memIndex,memberName,schedule);
 
 
     /*
@@ -211,6 +211,7 @@ async function setprojectData(userId,memberName,newSchedule){
    .catch((error)=>{
        console.log("データの取得失敗");
    })
+
     let member=await getProjectMembers();
     memIndex=member.length-1;
     console.log(member);
