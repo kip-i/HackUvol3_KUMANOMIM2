@@ -104,9 +104,9 @@ async function getUserSchedule(userId){
 }
 */
 ////////////////////////////////////////////////
-function setJoinMember(memIndex,memberName,newSchedule){
+function setJoinMember(memberName,newSchedule){
     console.log("set");
-    setprojectData("",memIndex,memberName,newSchedule);
+    setprojectData("",memberName,newSchedule);
 
     /*
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
@@ -149,7 +149,7 @@ function setJoinMember(memIndex,memberName,newSchedule){
 }
 
 /*わかりやすくするために仮引数memberIndexを改めmemIndexと名付けた*/
-async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
+async function setLoginMember(userId,projectSchedule,mySchedule){
     //var projectId = getParam("project");
     //var userId = null;
 
@@ -173,7 +173,7 @@ async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
     })
     console.log(mySchedule);
     let schedule=await diffSchedule(userId,projectSchedule,mySchedule);
-    setprojectData(userId,memIndex,memberName,schedule);
+    setprojectData(userId,memberName,schedule);
 
 
     /*
@@ -192,21 +192,20 @@ async function setLoginMember(userId,memIndex,projectSchedule,mySchedule){
 }
 
 
-function setprojectData(userId,memIndex,memberName,newSchedule){
+function setprojectData(userId,memberName,newSchedule){
     var projectId = getParam("project");
+    var memIndex="";
     console.log("kokomade");
     //データベースから名前の配列を取得してから、配列の要素を追加して、それをsetしないとだめでは？
     //名前の配列を取得
-    var documentId;
-    if(memIndex==0){
-        documentId=db.collection("project").doc(projectId).collection("projectMemberPeriod").doc().id;
-    }
     
     db.collection("project").doc(projectId).update({
         memberId: firebase.firestore.FieldValue.arrayUnion(userId),
         projectMemberName:firebase.firestore.FieldValue.arrayUnion(memberName)
     })
     .then(function(){
+        memIndex=memberName.length;
+
         db.collection("account").doc(userId).update({
             joinProject: firebase.firestore.FieldValue.arrayUnion(projectId)
         })
@@ -215,6 +214,10 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
        console.log("データの取得失敗");
    })
 
+    if (memberName[0] == "") {
+        memIndex--;
+    }
+    
     db.collection("project").doc(projectId).collection("projectMemberPeriod").add({
         memberId: userId,
         projectSchedule:newSchedule,
@@ -235,7 +238,7 @@ function setprojectData(userId,memIndex,memberName,newSchedule){
        .catch((error)=>{
            console.log("データの取得失敗");
        })
-    
+       let documentId=db.collection("project").doc(projectId).collection("projectMemberPeriod").doc().id;
         db.collection("project").doc(projectId).collection("projectMemberPeriod").doc(documentId).delete();
         console.log("delete");
     }
