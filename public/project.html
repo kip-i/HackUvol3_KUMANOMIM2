@@ -238,19 +238,13 @@
                 i++;
             }
         }
-        let num = memberName.length;
-
-        if (memberName[0] == "") {
-            num--;
-        }
-
         if (userId != null) {
             //ログインした人のための処理----------
             console.log(userSchedule);
-            setLoginMember(userId, num,scheduleArray, userSchedule);
+            setLoginMember(userId,scheduleArray, userSchedule);
         } else {
             //ログインしてない人のための処理-------
-            setJoinMember(num,unLoginUserName, scheduleArray);
+            setJoinMember(unLoginUserName, scheduleArray);
         }
     }
     //--------------------------------------------------------
