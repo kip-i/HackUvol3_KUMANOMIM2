@@ -37,7 +37,7 @@ async function getProjectPeriodStart(){
     buff = db.collection("project").doc(ID);
     var start = buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeiriod"]); 
-         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100,(querySnapshot.data()["projectPeriod"][0]%100));
+         let start =new Date(querySnapshot.data()["projectPeriod"][0]/10000,(querySnapshot.data()["projectPeriod"][0]%10000)/100-1,(querySnapshot.data()["projectPeriod"][0]%100));
          //console.log(start);
          return start;
     })
@@ -56,7 +56,7 @@ async function getProjectPeriodFinish(){
     buff = db.collection("project").doc(ID);
     var finish=await buff.get().then((querySnapshot) => {
          //console.log(querySnapshot.data()["projectPeriod"]); 
-         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100,(querySnapshot.data()["projectPeriod"][1]%100));
+         let end =new Date(querySnapshot.data()["projectPeriod"][1]/10000,(querySnapshot.data()["projectPeriod"][1]%10000)/100-1,(querySnapshot.data()["projectPeriod"][1]%100));
          //console.log(end);
          return end;
     })
@@ -122,6 +122,45 @@ function setWeekSchedule(userId,weekSchedule){
     })
 }
 
-async function changeWeekSchedule(userId,weekSchedule){
+async function changeWeekSchedule(userId,weekAfterSchedule){
+    let mySchedule=await db.collection("account").doc(userId).collection("myScheduleId").orderBy("date").get()
+    .then(async(querySnapshot)=>{
+        let temp=await querySnapshot.docs.map((doc)=>{
+            return doc.data()["mySchedule"];
+        })
+        return temp;
+    })
+    let scheduleId=[];
+    let i=0;
+    db.collection("account").doc(userId).collection("myScheduleId").orderBy("date").get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            //var data = doc.data();
+            console.log(doc.id);
+            scheduleId[i] = doc.id;
+            i++;
+        });
 
+        let today=new Date();
+        for(let j=0;j<60;j++){
+            let day=today.getDay();
+            console.log(j);
+            console.log(weekAfterSchedule);
+            console.log(mySchedule[j]);
+            for(let k=0;k<144;k++){
+                if(mySchedule[j][k]<=1){
+                    mySchedule[j][k]=weekAfterSchedule[day*144+k];
+                }
+            }
+            console.log(userId);
+            console.log(scheduleId[j]);
+            console.log(mySchedule[j]);
+            db.collection("account").doc(userId).collection("myScheduleId").doc(scheduleId[j]).update({
+                mySchedule:mySchedule[j]
+            })
+
+            today.setDate(today.getDate() + 1);     //日付を1日進める
+        }
+
+    })
 }

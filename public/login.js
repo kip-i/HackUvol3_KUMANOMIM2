@@ -8,7 +8,16 @@ function createUser() {
   userName= document.getElementById('name').value;
   var mailAddress = document.getElementById('email').value;
   var password = document.getElementById('password').value;
+  if(userName==""){
+    alert("ユーザ名を入力してください");
+    return;
+  }
   var weekArray=[];
+  console.log(userName);
+  if(userName==""){
+    alert("ユーザ名を入力してください");
+    return;
+  }
   for(let i=0;i<7;i++){
     for(let j=0;j<144;j++){
       weekArray[i*144+j]=1;
@@ -57,6 +66,10 @@ function login() {
   var userName= document.getElementById('name').value;
   var mailAddress = document.getElementById('email').value;
   var password = document.getElementById('password').value;
+  if(userName==""){
+    alert("ユーザ名を入力してください");
+    return;
+  }
   
   firebase.auth().signInWithEmailAndPassword(mailAddress, password)
   .then(function(){
